@@ -105,5 +105,5 @@ def test_voluntary_switch_consumes_turn_and_rejects_invalid_targets():
         [creature("A"), Creature("Fainted", 30, 10, 10, current_hp=0)],
         [creature("B")],
     )
-    with pytest.raises(ValueError, match="knocked out"):
+    with pytest.raises(ValueError, match="knocked-out"):
         switch_active(state_with_fainted_reserve, 1)
