@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://battlelab:battlelab@db:5432/battlelab
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=battlelab
+      - POSTGRES_PASSWORD=battlelab
+      - POSTGRES_DB=battlelab
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

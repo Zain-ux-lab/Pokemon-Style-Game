@@ -1,0 +1,87 @@
+BATTLELAB — BATTLE RULES
+Updated: 27 September 2026
+
+PURPOSE
+Record the current battle rules and keep unresolved design choices separate.
+This document takes precedence over older proposals for simultaneous move
+selection in the README and starter-code comments.
+
+1. TEAM SELECTION
+- A match has two players.
+- Each player secretly selects three characters from the available roster
+  (currently planned to contain approximately ten characters).
+- Neither player sees the opponent's selections before the battle starts.
+- Both teams are locked in before the battle starts. Players cannot replace
+  their selected team members during the match.
+
+2. TEAM REVEAL
+- Working rule: reveal all three characters on each team to the opponent
+  when the battle starts, after both teams have been locked in.
+- This is the current preferred approach, still open to team discussion.
+- Reason: secret selection prevents counter-picking during selection, while
+  revealing teams at battle start supports informed move and switch decisions.
+- Revealing the team does not reveal the opponent's future actions.
+
+3. ACTIVE CHARACTERS
+- Each player fields one active character at a time.
+- Their other two characters begin in reserve.
+- Combat is one active character against one active character, not three
+  characters acting against three characters at once.
+
+4. TURNS AND ACTIONS
+- Players take alternating turns. This follows the decision that switching
+  uses the current player's turn and hands play to the opponent.
+- A player may take exactly one action on their turn.
+- Actions are resolved on that player's turn; the game does not wait for
+  both players to secretly submit an action together.
+- A normal turn action is either using a character move or switching to
+  another available character on the player's locked-in team.
+- The method for deciding who takes the first turn is not yet agreed.
+
+5. CHARACTER MOVES
+- Each character has its own attributes and moves reflecting its identity.
+- The exact move list and number of moves per character are not yet agreed.
+- Generic Fight and Defend buttons are not required. Players can select
+  character-specific moves directly, including defensive moves if designed.
+- Switching is a shared action available to all characters when the player
+  has an eligible replacement.
+- Earlier examples such as Shield Bash, Heavy Swing, cooldowns, and conditional
+  damage bonuses are ideas only, not approved mechanics.
+- Status effects are undecided and are not required for the initial prototype.
+
+6. VOLUNTARY SWITCHING
+- On their turn, a player may replace their active character with another
+  non-knocked-out character from their own selected team.
+- Switching consumes the player's entire turn.
+- The player cannot also use a move on that turn.
+- After the switch, it is the opponent's turn.
+
+7. KNOCKOUTS AND FREE REPLACEMENT
+- A character is knocked out when its health reaches zero and cannot continue
+  fighting or be selected as a replacement.
+- If the active character is knocked out and the player has characters left,
+  that player chooses which eligible reserve character to deploy.
+- This forced replacement is free: it does not consume the player's turn.
+- Replacing a knocked-out character is different from voluntarily switching.
+- After replacement, normal turn order continues; replacement does not grant
+  the opponent an additional turn.
+
+8. VICTORY
+- A player wins when all three opposing characters have been knocked out.
+- If the defeated player has no eligible replacement, the match ends.
+
+9. DECISIONS STILL TO MAKE
+- How the first player is chosen.
+- How each player chooses their initial active character, and when that
+  choice happens relative to the team reveal.
+- Whether a team may contain duplicate characters.
+- Final confirmation of revealing all three opposing characters at battle start.
+- Character attributes, move counts, move effects, and damage values.
+- Whether moves use cooldowns, resources, or other limits.
+- Whether status effects belong in the game at all.
+- Rules for disconnects, inactivity, surrender, and any possible draw.
+
+IMPLEMENTATION NOTE
+The older simultaneous-action design included speed and action priority.
+Do not carry those mechanics into the alternating-turn version automatically.
+Any timing, priority, or speed mechanic needs a clear purpose under these rules.
