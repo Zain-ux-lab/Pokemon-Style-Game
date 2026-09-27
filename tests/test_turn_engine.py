@@ -87,7 +87,7 @@ def test_last_knockout_ends_battle():
         resolve_turn(state, hit)
 
 
-def test_voluntary_switch_consumes_turn_and_rejects_knockouts():
+def test_voluntary_switch_consumes_turn_and_rejects_invalid_targets():
     hit = Move("Hit", 10)
     state = BattleState(
         [creature("A", moves=[hit]), creature("Reserve")],
@@ -99,4 +99,11 @@ def test_voluntary_switch_consumes_turn_and_rejects_knockouts():
     assert state.active_creature(0).name == "Reserve"
     assert state.current_player == 1
     with pytest.raises(ValueError, match="already active"):
-        switch_active(state, 1)
+        switch_active(state, 0)
+
+    state_with_fainted_reserve = BattleState(
+        [creature("A"), Creature("Fainted", 30, 10, 10, current_hp=0)],
+        [creature("B")],
+    )
+    with pytest.raises(ValueError, match="knocked out"):
+        switch_active(state_with_fainted_reserve, 1)
