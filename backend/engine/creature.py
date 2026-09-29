@@ -1,0 +1,36 @@
+"""Creature data and per-battle health state."""
+
+from dataclasses import dataclass, field
+
+from .moves import Move
+
+
+@dataclass
+class Creature:
+    """A reusable creature definition with health tracked for one battle."""
+
+    name: str
+    max_hp: int
+    attack: int
+    defense: int
+    moves: tuple[Move, ...] = field(default_factory=tuple)
+    current_hp: int | None = None
+
+    def __post_init__(self) -> None:
+        if not self.name.strip():
+            raise ValueError("creature name must not be empty")
+        if self.max_hp <= 0:
+            raise ValueError("max_hp must be greater than zero")
+        if self.attack < 0:
+            raise ValueError("attack must not be negative")
+        if self.defense <= 0:
+            raise ValueError("defense must be greater than zero")
+        if self.current_hp is None:
+            self.current_hp = self.max_hp
+        elif not 0 <= self.current_hp <= self.max_hp:
+            raise ValueError("current_hp must be between zero and max_hp")
+
+    @property
+    def is_knocked_out(self) -> bool:
+        """Whether this creature can no longer fight."""
+        return self.current_hp == 0
