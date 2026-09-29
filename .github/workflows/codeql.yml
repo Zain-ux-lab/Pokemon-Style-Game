@@ -1,0 +1,63 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+  schedule:
+    - cron: "34 12 * * 5"
+
+jobs:
+  source-check:
+    name: Check for supported source files
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      has-source: ${{ steps.detect.outputs.has-source }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Detect Python or JavaScript/TypeScript files
+        id: detect
+        shell: bash
+        run: |
+          if git ls-files -- '*.py' '*.js' '*.ts' '*.jsx' '*.tsx' | grep -q .; then
+            echo "has-source=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-source=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    needs: source-check
+    if: needs.source-check.outputs.has-source == 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: javascript-typescript
+            build-mode: none
+          - language: python
+            build-mode: none
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
