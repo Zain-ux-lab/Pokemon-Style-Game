@@ -51,6 +51,8 @@ class TurnResult:
     damage: int
     knocked_out: bool
     winner: int | None
+    healed: int = 0
+    guard_percent: int = 0
 
 
 def _validate_player(player: int) -> None:
@@ -66,7 +68,7 @@ def _ensure_action_allowed(state: BattleState) -> None:
 
 
 def resolve_turn(state: BattleState, move: Move) -> TurnResult:
-    """Resolve the current player's one move and pass the turn to the opponent."""
+    """Resolve the current player's move and pass the turn to the opponent."""
     _ensure_action_allowed(state)
     player = state.current_player
     attacker = state.active_creature(player)
@@ -76,18 +78,30 @@ def resolve_turn(state: BattleState, move: Move) -> TurnResult:
     if move not in attacker.moves:
         raise ValueError("move is not available to the active creature")
 
-    damage = calculate_damage(attacker, defender, move)
-    defender.current_hp = max(0, defender.current_hp - damage)
-    knocked_out = defender.is_knocked_out
-    state.current_player = 1 - player
+    damage = healed = guard_percent = 0
+    knocked_out = False
+    if move.effect == "damage":
+        damage = calculate_damage(attacker, defender, move)
+        if defender.guard_percent:
+            damage = damage * (100 - defender.guard_percent) // 100
+            defender.guard_percent = 0
+        defender.current_hp = max(0, defender.current_hp - damage)
+        knocked_out = defender.is_knocked_out
+    elif move.effect == "heal":
+        healed = min(move.effect_amount, attacker.max_hp - attacker.current_hp)
+        attacker.current_hp += healed
+    else:
+        guard_percent = move.effect_amount
+        attacker.guard_percent = guard_percent
 
+    state.current_player = 1 - player
     if knocked_out:
         if any(not creature.is_knocked_out for creature in state.team(1 - player)):
             state.replacement_required = 1 - player
         else:
             state.winner = player
 
-    return TurnResult(player, damage, knocked_out, state.winner)
+    return TurnResult(player, damage, knocked_out, state.winner, healed, guard_percent)
 
 
 def switch_active(state: BattleState, new_active_index: int) -> None:
