@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BattleLab · Colosseum</title>
-  <link rel="stylesheet" href="style.css?v=3">
-  <script src="script.js?v=3" defer></script>
+  <link rel="stylesheet" href="style.css?v=4">
+  <script src="script.js?v=4" defer></script>
 </head>
 <body>
   <main class="shell">
     <header class="topbar"><a class="brand" href="./index.html">B<span class="brand-star">✦</span>TTLELAB</a><div class="location">THE COLOSSEUM <span>Friendly battle</span></div><button id="restart" class="quiet">New battle ↻</button></header>
-    <div class="demo-note"><span class="dot"></span> LOCAL PROTOTYPE <span>Two players, one screen · sample stats & artwork</span></div>
+    <div class="demo-note"><span class="dot"></span> PLAY THE BOT <span>Basic attacks · prototype stats & artwork</span></div>
     <section class="arena" aria-label="Colosseum battlefield">
       <div class="fighter-hud left" id="hud-0"></div><div class="fighter-hud right" id="hud-1"></div>
       <div class="turn-badge" id="turn" role="status"></div>
@@ -25,7 +25,19 @@
     </section>
     <div class="history"><span class="eyebrow">BATTLE LOG</span><ol id="log" aria-live="polite" aria-relevant="additions"></ol></div>
     <footer><span>MAGIC <b>›</b> PHYSICAL <b>›</b> SPIRIT <b>›</b> MAGIC</span><span>Type advantage +25% · Hover or focus a move to inspect</span></footer>
+    <div class="connection-notice"><p data-error role="alert" hidden></p><button id="retry" class="quiet" hidden>Retry connection</button></div>
   </main>
   <dialog id="switch-dialog"><form method="dialog"><button class="close" aria-label="Close">×</button></form><p class="eyebrow" id="switch-label">CHANGE THE MATCHUP</p><h2 id="switch-title">Choose your next character</h2><p id="switch-description"></p><div id="switch-options"></div></dialog>
+  <dialog id="team-dialog" aria-labelledby="team-title">
+    <button id="team-cancel" class="close" aria-label="Return to battle" hidden>×</button>
+    <p class="eyebrow">THE COLOSSEUM · SOLO BATTLE</p>
+    <h2 id="team-title">Choose your three.</h2>
+    <p>Your first pick leads. The bot draws three different characters after you lock in.</p>
+    <div id="team-options" class="team-options"></div>
+    <p class="prototype-note">Basic attacks for now. Stats and shared artwork are placeholders; special moves and type bonuses are coming later.</p>
+    <p data-error role="alert" hidden></p>
+    <button id="team-retry" class="quiet" hidden>Retry connection</button>
+    <button id="start-battle" class="start-battle" disabled>Enter arena · 0 / 3</button>
+  </dialog>
 </body>
 </html>

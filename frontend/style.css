@@ -36,3 +36,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#cdb582}
 @media(max-height:540px) and (min-width:701px){.fighter-hud{top:68px}.enemy-team{top:195px;right:210px}.enemy-team .eyebrow{display:none}.enemy-portrait .sprite{height:22px}.enemy-portrait{width:39px}.turn-badge{bottom:12px}.fighter.right{left:47%;bottom:37%}}
 /* Reserve separate vertical space for the opponent roster and action pills. */
 @media(min-width:701px) and (min-height:541px){.enemy-team{top:205px}.actions-panel{top:max(48%,320px);transform:none}.move{min-height:43px;padding-top:10px;padding-bottom:10px}.moves{gap:9px}}
+
+/* Team selection shares the arena's restrained palette. */
+#team-dialog{max-width:720px;max-height:90dvh;overflow:auto;padding:28px}
+#team-dialog h2{margin:0 0 8px;font-size:30px}
+#team-dialog>.eyebrow{margin-bottom:10px}
+.team-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:20px 0}
+.team-choice{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:13px 6px;border:1px solid #cdd3c2;border-radius:12px;background:#edf0e5;min-width:0}
+.team-choice .sprite{height:65px;width:65px}
+.team-choice strong{font-size:12px}.team-choice small{font-size:9px;color:#62715e}
+.team-choice.selected{border:2px solid #537e65;padding:12px 5px;background:#dde9d7}
+.team-choice:disabled:not(.selected){opacity:.5}
+.pick-number{position:absolute;top:6px;left:8px;font-size:10px;color:#56754e}
+.start-battle{width:100%;padding:13px;border:0;border-radius:24px;background:#355c48;color:#fff8e9;font-weight:600}
+.start-battle:disabled{opacity:.5}.prototype-note{color:#7a806e;font-size:10px!important}
+.connection-notice{position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:10;max-width:380px;text-align:center}
+[data-error]:not([hidden]){background:#fff2df;color:#874d32;border-radius:8px;padding:10px;font-size:12px}
+.connection-notice:has([data-error][hidden]){pointer-events:none}
+.move:disabled{opacity:.55}.portrait.knocked-out{opacity:.35;filter:grayscale(1)}
+@media(max-width:620px){#team-dialog{padding:22px 16px}.team-options{grid-template-columns:repeat(2,minmax(0,1fr))}.team-choice .sprite{height:48px}.team-choice small{font-size:10px}}

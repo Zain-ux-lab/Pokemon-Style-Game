@@ -1,3 +1,9 @@
+> **Playable single-player prototype:** this branch connects the screen to the
+> Python engine and tactical bot. Follow [the game setup instructions](frontend/README.md).
+> The original proposal below is historical: multiplayer, accounts, database
+> persistence, special effects, and simultaneous turns are not implemented in
+> this prototype. Battles use alternating turns; types are currently labels only.
+
 # Pokemon-Style-Game
 Two players battle using teams of creatures with different moves, stats, abilities, and status effects.
 

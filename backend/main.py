@@ -1,19 +1,26 @@
-"""
-BattleLab backend entrypoint.
+"""Run the local single-player game: uvicorn backend.main:app --reload."""
+from pathlib import Path
 
-Owner: Backend teammate
-Run with: uvicorn backend.main:app --reload
-"""
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(title="BattleLab")
+from backend.api.routes import router
+
+app = FastAPI(title='BattleLab')
+app.include_router(router)
 
 
-@app.get("/health")
+@app.middleware('http')
+async def no_cached_battles(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith('/api/'):
+        response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.get('/health')
 def health():
-    """Simple liveness check so the frontend/CI can confirm the server is up."""
-    return {"status": "ok"}
+    return {'status': 'ok'}
 
 
-# WebSocket battle endpoint, matchmaking routes, and auth routes get added here
-# as api/ modules are built out (see backend/api/).
+app.mount('/', StaticFiles(directory=Path(__file__).resolve().parent.parent / 'frontend', html=True), name='frontend')
