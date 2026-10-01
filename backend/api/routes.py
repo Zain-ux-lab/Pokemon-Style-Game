@@ -21,16 +21,16 @@ router = APIRouter(prefix='/api')
 # Temporary attack-only roster. Types are presentation labels until the engine
 # supports them. Keep future effects in the engine, not in this API.
 ROSTER = [
-    dict(id='mage', name='Mage', type='Magic', maxHp=100, power=22, move='Arcane Bolt', art='Mage'),
-    dict(id='sporestag', name='Sporestag', type='Physical', maxHp=120, power=20, move='Horn Jab', art='Sporestag'),
-    dict(id='glowmire', name='Glowmire', type='Spirit', maxHp=90, power=21, move='Ember Beam', art='Glowmire'),
-    dict(id='bramblebelly', name='Bramblebelly', type='Physical', maxHp=120, power=20, move='Bramble Bash', art='Sporestag'),
-    dict(id='veyne', name='Veyne', type='Physical', maxHp=100, power=22, move='Steady Shot', art='Mage'),
-    dict(id='coil', name='Coil', type='Magic', maxHp=100, power=22, move='Spark Bolt', art='Glowmire'),
-    dict(id='bastion', name='Bastion', type='Physical', maxHp=120, power=20, move='Shield Bash', art='Mage'),
-    dict(id='vesperfang', name='Vesperfang', type='Magic', maxHp=100, power=22, move='Dusk Bolt', art='Sporestag'),
-    dict(id='hushwing', name='Hushwing', type='Spirit', maxHp=90, power=21, move='Echo Strike', art='Glowmire'),
-    dict(id='riftclaw', name='Riftclaw', type='Spirit', maxHp=100, power=22, move='Rift Slash', art='Sporestag'),
+    dict(id='mage', name='Mage', type='Magic', maxHp=100, moves=[dict(name='Arcane Bolt', power=22), dict(name='Staff Strike', power=16), dict(name='Comet Crash', power=30)], art='Mage'),
+    dict(id='sporestag', name='Sporestag', type='Physical', maxHp=120, moves=[dict(name='Horn Jab', power=20), dict(name='Chitin Kick', power=16), dict(name='Antler Crash', power=28)], art='Sporestag'),
+    dict(id='glowmire', name='Glowmire', type='Spirit', maxHp=90, moves=[dict(name='Ember Beam', power=21), dict(name='Wisp Flicker', power=15), dict(name='Lantern Flare', power=29)], art='Glowmire'),
+    dict(id='bramblebelly', name='Bramblebelly', type='Physical', maxHp=120, moves=[dict(name='Bramble Bash', power=20), dict(name='Root Snare', power=16), dict(name='Thorn Burst', power=28)], art='Sporestag'),
+    dict(id='veyne', name='Veyne', type='Physical', maxHp=100, moves=[dict(name='Steady Shot', power=22), dict(name='Quick Draw', power=16), dict(name='Piercing Volley', power=30)], art='Mage'),
+    dict(id='coil', name='Coil', type='Magic', maxHp=100, moves=[dict(name='Spark Bolt', power=22), dict(name='Static Snap', power=16), dict(name='Thunderhead', power=30)], art='Glowmire'),
+    dict(id='bastion', name='Bastion', type='Physical', maxHp=120, moves=[dict(name='Shield Bash', power=20), dict(name='Stone Fist', power=16), dict(name='Rampart Crash', power=28)], art='Mage'),
+    dict(id='vesperfang', name='Vesperfang', type='Magic', maxHp=100, moves=[dict(name='Dusk Bolt', power=22), dict(name='Night Peck', power=16), dict(name='Moonfall', power=30)], art='Sporestag'),
+    dict(id='hushwing', name='Hushwing', type='Spirit', maxHp=90, moves=[dict(name='Echo Strike', power=21), dict(name='Soft Wing', power=15), dict(name='Resonance', power=29)], art='Glowmire'),
+    dict(id='riftclaw', name='Riftclaw', type='Spirit', maxHp=100, moves=[dict(name='Rift Slash', power=22), dict(name='Phase Swipe', power=16), dict(name='Rift Breaker', power=30)], art='Sporestag'),
 ]
 BY_ID = {c['id']: c for c in ROSTER}
 COOKIE = 'battlelab_session'
@@ -123,7 +123,10 @@ def _advance(match: Match, action: Action) -> dict:
     if match.battle.winner is not None:
         match.log.append('You win!' if match.battle.winner == 0 else 'The bot wins. Try another team!')
     match.log = match.log[-100:]
-    return _snapshot(match)
+    frame = _snapshot(match)
+    if action.kind == 'move':
+        frame['animation'] = {'kind': 'attack', 'actor': player, 'target': 1 - player}
+    return frame
 
 
 @router.get('/roster')
@@ -146,7 +149,7 @@ def new_battle(data: TeamRequest, request: Request, response: Response):
             session = token_urlsafe(32)
         rosters = [data.roster, sample([c for c in BY_ID if c not in data.roster], 3)]
         teams = [[Creature(BY_ID[c]['name'], BY_ID[c]['maxHp'], 10, 10,
-                           (Move(BY_ID[c]['move'], BY_ID[c]['power']),)) for c in ids] for ids in rosters]
+                           tuple(Move(move['name'], move['power']) for move in BY_ID[c]['moves'])) for c in ids] for ids in rosters]
         match = Match(BattleState(*teams), rosters)
         # A reset invalidates any outstanding request from the previous match.
         if session in _matches:

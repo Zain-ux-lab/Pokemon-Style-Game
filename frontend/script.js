@@ -49,7 +49,7 @@ function render() {
   $('restart').disabled = busy;
   if (!state) {
     $('moves').replaceChildren(); $('roster').replaceChildren(); $('enemy-roster').replaceChildren();
-    $('switch').disabled = true; $('turn').textContent = 'CHOOSE YOUR TEAM';
+    $('turn').textContent = 'CHOOSE YOUR TEAM';
     return;
   }
   hideDetails();
@@ -75,9 +75,6 @@ function render() {
     button.onmouseenter=()=>showDetails(index,button); button.onfocus=()=>showDetails(index,button);
     button.onmouseleave=scheduleHideDetails; button.onblur=scheduleHideDetails;
   });
-  const kind = state.replacement===0?'replace':'switch';
-  $('switch').disabled = busy || disconnected || !state.actions.some(a=>a.kind===kind);
-  $('switch').innerHTML = kind==='replace'?'⇄ Deploy replacement <span>Free replacement</span>':'⇄ Switch character <span>Uses your turn</span>';
   $('log').replaceChildren(...state.log.map(message=>{const li=document.createElement('li');li.textContent=message;return li;}));
   $('log').scrollTop=$('log').scrollHeight;
 }
@@ -118,8 +115,16 @@ async function sendAction(kind,index) {
   try {
     const data=await request('/api/battle/actions',{kind,index,revision:state.revision});
     for (let i=0;i<data.frames.length;i++) {
-      state=data.frames[i];render();
-      if (i<data.frames.length-1) await delay(700);
+      const frame=data.frames[i];
+      state=frame;render();
+      if (frame.animation?.kind==='attack') {
+        const attacker=$(`fighter-${frame.animation.actor}`), target=$(`fighter-${frame.animation.target}`);
+        attacker.classList.remove('attack-animation'); target.classList.remove('hit-animation');
+        void attacker.offsetWidth;
+        attacker.classList.add('attack-animation'); target.classList.add('hit-animation');
+        setTimeout(()=>{attacker.classList.remove('attack-animation');target.classList.remove('hit-animation');},460);
+      }
+      if (i<data.frames.length-1) await delay(frame.animation?.kind==='attack'?500:700);
     }
   } catch (error) {
     // Read the saved result after a lost response; never replay a move blindly.
@@ -135,7 +140,7 @@ async function sendAction(kind,index) {
 function renderChoices() {
   $('team-options').innerHTML=catalog.map(c=>{
     const rank=selection.indexOf(c.id);
-    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${c.type} · ${c.maxHp} HP</small><small>${c.move} · ${c.power} power</small></button>`;
+    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${c.type} · ${c.maxHp} HP</small><small>${c.moves[0].name} · ${c.moves[0].power} power</small></button>`;
   }).join('');
   $('team-options').querySelectorAll('button').forEach(button=>button.onclick=()=>{
     const id=button.dataset.id; selection=selection.includes(id)?selection.filter(c=>c!==id):[...selection,id];
@@ -182,7 +187,7 @@ async function connect() {
 $('switch-dialog').addEventListener('cancel',e=>{if(state?.replacement===0)e.preventDefault();});
 $('team-dialog').addEventListener('cancel',e=>{if(!state || busy)e.preventDefault();});
 $('team-cancel').onclick=()=>{if(!busy){$('team-dialog').close();if(state?.replacement===0)openSwitch();}};
-$('switch').onclick=()=>openSwitch();$('restart').onclick=openTeamPicker;
+$('restart').onclick=openTeamPicker;
 $('start-battle').onclick=startBattle;$('retry').onclick=connect;$('team-retry').onclick=connect;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')hideDetails();});
 window.addEventListener('resize',hideDetails);

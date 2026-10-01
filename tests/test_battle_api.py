@@ -26,6 +26,8 @@ def test_roster_selection_and_opponent_are_disjoint():
         roster = client.get('/api/roster')
         assert roster.status_code == 200
         assert len(roster.json()) == 10
+        assert all(len(character['moves']) == 3 for character in roster.json())
+        assert all(len({move['name'] for move in character['moves']}) == 3 for character in roster.json())
         state = start(client)
         assert [c['id'] for c in state['teams'][0]] == PICKS
         enemies = [c['id'] for c in state['teams'][1]]
@@ -38,7 +40,7 @@ def test_roster_selection_and_opponent_are_disjoint():
 def test_action_runs_bot_and_rejects_duplicate_submission():
     with TestClient(app) as client:
         state = start(client)
-        action = {'kind': 'move', 'index': 0, 'revision': state['revision']}
+        action = {'kind': 'move', 'index': 2, 'revision': state['revision']}
         response = client.post('/api/battle/actions', json=action)
         assert response.status_code == 200
         result = response.json()
@@ -47,9 +49,13 @@ def test_action_runs_bot_and_rejects_duplicate_submission():
         assert result['state']['player'] == 0
         target_before = state['teams'][1][0]['hp']
         target_after = result['frames'][0]['teams'][1][0]['hp']
-        assert target_before - target_after == state['teams'][0][0]['moves'][0]['damage']
+        assert target_before - target_after == state['teams'][0][0]['moves'][2]['damage']
+        assert result['frames'][0]['animation'] == {'kind': 'attack', 'actor': 0, 'target': 1}
+        assert result['frames'][1]['animation']['kind'] == 'attack'
+        assert result['frames'][1]['animation']['actor'] == 1
         assert client.post('/api/battle/actions', json=action).status_code == 409
-        assert client.get('/api/battle').json() == {'state': result['state']}
+        persisted = client.get('/api/battle').json()['state']
+        assert {key: value for key, value in result['state'].items() if key != 'animation'} == persisted
 
 
 def test_switch_uses_turn_and_bot_replies():

@@ -30,9 +30,9 @@ no accounts, persistent saves, or online multiplayer.
 
 ## Current limits
 
-Each character has one basic attack. The ten names use temporary stats and
-share three placeholder sprites. The original three keep their basic attack
-names and HP; new entries reuse prototype stat ranges. Attack and defense are
+Each character has three direct attack choices; a player uses one move per turn.
+The ten names use temporary stats and share three placeholder sprites. The
+original three keep their first attack names and HP; new entries reuse prototype stat ranges. Attack and defense are
 both 10 until the engine's character data is integrated. Category labels have
 no damage bonus yet. Charge, guard, healing, resource costs, and final balancing
 remain engine follow-ups; they are not simulated in the browser.
