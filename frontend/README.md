@@ -1,26 +1,58 @@
-# Battle screen prototype
+# Play against the tactical bot
 
-Open `index.html` in a browser, or serve this folder with `python3 -m http.server 8080`.
+Start the Python app from the repository root and open http://127.0.0.1:8000/:
 
-This is a local, two-player pass-and-play prototype, not networked multiplayer.
-After each action the controls belong to the next player. Hover or focus a move
-to see exact demo damage. Click to act. Select a reserve portrait or Switch to
-open a confirmation chooser. Knockout replacements do not consume a turn.
-New battle resets the match.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m uvicorn backend.main:app --reload
+```
 
-Stats, damage and character SVG artwork are placeholders for interface testing.
-The handcrafted geometric SVGs can be replaced with final pixel sprites later.
-The colosseum background was generated with the built-in image generation tool
-and copied into this folder. Fonts use Google Fonts with local sans-serif fallbacks.
+The Python app serves both the screen and the battle API. Opening `index.html`
+directly or using the old static server on port 8080 will not run battles.
 
-The demo starts with fixed teams and a fixed first player. Team selection, roster
-restrictions and the first-player rule are not implemented. No accounts, rooms,
-or remote actions are connected. The duplicated local rules are for demonstration
-only: replace them with authoritative server state during integration. The
-backend teammate's engine files have not been changed.
+Pick three different characters. Selection order determines your starting
+character; you move first. The bot randomly draws three of the remaining seven.
+Both rosters are revealed when the battle begins. Hover or focus an attack to
+see the engine's exact damage preview. Switching uses a turn. Replacing a
+knocked-out character is free. The human always stays on the near side.
 
-The prototype branch starts from feature/project-setup, avoiding the divergent
-engine branches. Merge setup into develop before opening this frontend PR there.
+Combat and bot decisions run in Python. The browser displays returned battle
+states and sends only the chosen action and expected match revision. This
+revision rejects double clicks and actions from an outdated tab. If a response
+is lost, the screen fetches the saved state instead of replaying an attack.
+
+Each browser has a separate cookie-based session. Refresh resumes the match.
+Matches live in memory, expire after 30 minutes without requests, and disappear
+when the server restarts. Run one server worker for this local demo. There are
+no accounts, persistent saves, or online multiplayer.
+
+## Current limits
+
+Each character has three direct attack choices; a player uses one move per turn.
+The ten names use temporary stats and share three placeholder sprites. The
+original three keep their first attack names and HP; new entries reuse prototype stat ranges. Attack and defense are
+both 10 until the engine's character data is integrated. Category labels have
+no damage bonus yet. Charge, guard, healing, resource costs, and final balancing
+remain engine follow-ups; they are not simulated in the browser.
+
+The colosseum background was generated with the built-in image generation tool.
+Fonts use Google Fonts with local sans-serif fallbacks. The geometric SVGs are
+placeholder art and can be replaced with final pixel sprites.
+
+## Tests
+
+The client recovery test uses Node.js 18+ and its built-in test runner.
+
+```bash
+python -m pytest -q
+node --test tests/test_client.cjs
+```
+
+`tests/test_battle_api.py` exercises team validation, disjoint bot rosters,
+automatic bot turns, switching, free replacements, full match completion,
+session isolation, and rejection of stale or invalid actions.
 
 ## Background generation prompt
 
