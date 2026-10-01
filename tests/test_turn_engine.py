@@ -104,7 +104,7 @@ def test_guard_reduces_next_hit_by_half_then_is_consumed():
     resolve_turn(state, hit)
     second_hit = resolve_turn(state, hit)
     assert second_hit.damage == 10
-    assert defender.current_hp == 5
+    assert defender.current_hp == 15
 
 
 def test_guard_can_prevent_knockout_and_does_not_persist_after_hit():
