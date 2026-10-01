@@ -15,6 +15,7 @@ class Creature:
     defense: int
     moves: tuple[Move, ...] = field(default_factory=tuple)
     current_hp: int | None = None
+    guard_percent: int = 0
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -29,6 +30,8 @@ class Creature:
             self.current_hp = self.max_hp
         elif not 0 <= self.current_hp <= self.max_hp:
             raise ValueError("current_hp must be between zero and max_hp")
+        if isinstance(self.guard_percent, bool) or not 0 <= self.guard_percent <= 100:
+            raise ValueError("guard_percent must be between zero and 100")
 
     @property
     def is_knocked_out(self) -> bool:
