@@ -111,7 +111,7 @@ def test_guard_can_prevent_knockout_and_does_not_persist_after_hit():
     guard = Move("Shield Bash", effect="guard", effect_amount=50)
     hit = Move("Hit", 10)
     protected = creature("Bastion", hp=30, moves=[guard])
-    protected.current_hp = 5
+    protected.current_hp = 6
     attacker = creature("Opponent", attack=10, moves=[hit])
     state = BattleState([protected], [attacker])
 
@@ -120,7 +120,7 @@ def test_guard_can_prevent_knockout_and_does_not_persist_after_hit():
 
     assert result.damage == 5
     assert not result.knocked_out
-    assert protected.current_hp == 0 or protected.current_hp == 0
+    assert protected.current_hp == 1
     assert protected.guard_percent == 0
     assert state.winner is None
 
