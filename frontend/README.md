@@ -14,8 +14,8 @@ directly or using the old static server on port 8080 will not run battles.
 
 Pick three different characters. Selection order determines your starting
 character; you move first. The bot randomly draws three of the remaining seven.
-Both rosters are revealed when the battle begins. Hover or focus an attack to
-see the engine's exact damage preview. Switching uses a turn. Replacing a
+Both rosters are revealed when the battle begins. Hover or focus a move to
+see its damage, healing, or guard preview. Switching uses a turn. Replacing a
 knocked-out character is free. The human always stays on the near side.
 
 Combat and bot decisions run in Python. The browser displays returned battle
@@ -30,11 +30,13 @@ no accounts, persistent saves, or online multiplayer.
 
 ## Current limits
 
-Each character has three direct attack choices; a player uses one move per turn.
+Each character has three move choices; a player uses one move per turn.
+Glowmire and Hushwing can heal, while Bramblebelly and Bastion can guard
+against the next hit. The bot considers those effects when choosing a move.
 The ten names use temporary stats and share three placeholder sprites. The
 original three keep their first attack names and HP; new entries reuse prototype stat ranges. Attack and defense are
 both 10 until the engine's character data is integrated. Category labels have
-no damage bonus yet. Charge, guard, healing, resource costs, and final balancing
+no damage bonus yet. Charge, resource costs, and final balancing
 remain engine follow-ups; they are not simulated in the browser.
 
 The colosseum background was generated with the built-in image generation tool.

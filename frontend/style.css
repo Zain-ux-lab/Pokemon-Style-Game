@@ -61,3 +61,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#cdb582}
 .fighter.hit-animation .sprite{animation:hit-recoil .42s ease-in-out both!important}
 @keyframes attack-lunge{0%,100%{translate:0 0}45%{translate:34px -4px}65%{translate:24px 0}}
 @keyframes hit-recoil{0%,100%{translate:0 0}25%{translate:12px 0;filter:brightness(1.8)}55%{translate:-7px 0}75%{translate:4px 0}}
+
+.guard-state{margin-top:5px;color:#5570a2;font-size:9px;font-weight:700;letter-spacing:.5px}
+.fighter.heal-animation .sprite{animation:heal-pulse .42s ease-in-out both!important}
+.fighter.guard-animation .sprite{animation:guard-pulse .42s ease-in-out both!important}
+@keyframes heal-pulse{50%{filter:brightness(1.7) drop-shadow(0 0 14px #91d6a3)}}
+@keyframes guard-pulse{50%{filter:brightness(1.4) drop-shadow(0 0 14px #789bd4)}}
+@media(prefers-reduced-motion:reduce){.fighter.attack-animation .sprite,.fighter.hit-animation .sprite,.fighter.heal-animation .sprite,.fighter.guard-animation .sprite{animation:none!important}}

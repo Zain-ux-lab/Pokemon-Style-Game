@@ -31,3 +31,27 @@ test('retry restores an existing match and dismisses the initial team picker', a
   assert.equal(get('turn').textContent,'YOUR TURN');
   assert.equal(get('team-dialog').open,false,'Recovered match should be visible without dismissing team selection');
 });
+
+test('move details distinguish healing and guarding from attacks', async () => {
+  const nodes = new Map();
+  const get = id => {if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};
+  const healer = {id:'glowmire',name:'Glowmire',art:'Glowmire',type:'Spirit',hp:60,maxHp:90,
+    moves:[{name:'Ember Beam',effect:'damage',amount:21,description:'Deals damage.',symbol:'✦'},
+      {name:'Lantern Flare',effect:'heal',amount:25,description:'Restore up to 25 HP.',symbol:'＋'},
+      {name:'Root Snare',effect:'guard',amount:50,description:'Reduce the next hit by 50%.',symbol:'◈'}]};
+  const enemy = {id:'mage',name:'Mage',art:'Mage',type:'Magic',hp:100,maxHp:100,moves:[]};
+  const saved = {teams:[[healer],[enemy]],active:[0,0],player:0,replacement:null,winner:null,turn:1,revision:0,actions:[],log:[]};
+  const replies = [[],{state:saved}];
+  const context = vm.createContext({
+    document:{getElementById:get,querySelector:get,querySelectorAll:()=>[],createElement:element,addEventListener(){}},
+    window:{addEventListener(){}},setTimeout,clearTimeout,AbortSignal,
+    fetch:async()=>({ok:true,json:async()=>replies.shift()}),
+  });
+  vm.runInContext(readFileSync(new URL('../frontend/script.js',`file://${__filename}`),'utf8'),context);
+  await new Promise(setImmediate);
+
+  vm.runInContext('preview(1)',context);
+  assert.match(get('details').innerHTML,/RECOVERY[\s\S]*25[\s\S]*HP restored/);
+  vm.runInContext('preview(2)',context);
+  assert.match(get('details').innerHTML,/GUARD[\s\S]*50%[\s\S]*next hit/);
+});

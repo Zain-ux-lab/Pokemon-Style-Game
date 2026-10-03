@@ -124,3 +124,25 @@ def test_bot_returns_none_when_waiting_or_battle_is_over():
 
     assert choose_action(state, bot_player=1) is None
     assert choose_action(finished, bot_player=0) is None
+
+
+def test_bot_heals_to_survive_the_next_attack():
+    weak = Move('Scratch', 1)
+    heal = Move('Recover', effect='heal', effect_amount=25)
+    attacker = Move('Strike', 10)
+    bot = creature('Bot', hp=30, moves=[weak, heal])
+    bot.current_hp = 5
+    state = BattleState([bot], [creature('Human', moves=[attacker])])
+
+    assert choose_action(state, bot_player=0) == Action('move', 1)
+
+
+def test_bot_guards_to_survive_the_next_attack():
+    weak = Move('Scratch', 1)
+    guard = Move('Guard', effect='guard', effect_amount=50)
+    attacker = Move('Strike', 10)
+    bot = creature('Bot', hp=10, moves=[weak, guard])
+    bot.current_hp = 6
+    state = BattleState([bot], [creature('Human', moves=[attacker])])
+
+    assert choose_action(state, bot_player=0) == Action('move', 1)

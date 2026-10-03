@@ -37,6 +37,58 @@ def test_roster_selection_and_opponent_are_disjoint():
         assert client.get('/api/battle').json()['state'] == state
 
 
+def test_special_moves_are_described_by_the_roster_and_battle_state():
+    with TestClient(app) as client:
+        roster = {character['id']: character for character in client.get('/api/roster').json()}
+        assert roster['glowmire']['moves'][2]['effect'] == 'heal'
+        assert roster['glowmire']['moves'][2]['effect_amount'] == 25
+        assert roster['hushwing']['moves'][1]['effect_amount'] == 20
+        assert roster['bramblebelly']['moves'][1]['effect'] == 'guard'
+        assert roster['bastion']['moves'][0]['effect_amount'] == 50
+        assert all(len(character['moves']) == 3 for character in roster.values())
+
+        state = start(client)
+        moves = state['teams'][0][2]['moves']
+        assert moves[2]['effect'] == 'heal'
+        assert moves[2]['amount'] == 0  # Glowmire starts at full HP.
+        assert moves[2]['symbol'] == '＋'
+
+
+def test_healing_restores_only_missing_hp_and_spends_one_action():
+    with TestClient(app) as client:
+        state = client.post('/api/battle', json={'roster': ['glowmire', 'mage', 'sporestag']}).json()['state']
+        attack = client.post('/api/battle/actions', json={'kind': 'move', 'index': 0, 'revision': state['revision']})
+        assert attack.status_code == 200
+        state = attack.json()['state']
+        missing_hp = state['teams'][0][0]['maxHp'] - state['teams'][0][0]['hp']
+        assert missing_hp > 0
+        assert state['teams'][0][0]['moves'][2]['amount'] == min(25, missing_hp)
+
+        response = client.post('/api/battle/actions', json={'kind': 'move', 'index': 2, 'revision': state['revision']})
+        assert response.status_code == 200
+        frame = response.json()['frames'][0]
+        assert frame['teams'][0][0]['hp'] - state['teams'][0][0]['hp'] == min(25, missing_hp)
+        assert frame['teams'][1][0]['hp'] == state['teams'][1][0]['hp']
+        assert frame['animation'] == {'kind': 'heal', 'actor': 0}
+        assert 'restored' in frame['log'][-1]
+        assert frame['player'] == 1
+        assert frame['turn'] == state['turn'] + 1
+
+
+def test_guard_protects_against_the_next_bot_attack():
+    with TestClient(app) as client:
+        state = client.post('/api/battle', json={'roster': ['bramblebelly', 'mage', 'sporestag']}).json()['state']
+        response = client.post('/api/battle/actions', json={'kind': 'move', 'index': 1, 'revision': state['revision']})
+        assert response.status_code == 200
+        result = response.json()
+        guarded = result['frames'][0]
+        assert guarded['teams'][0][0]['guardPercent'] == 50
+        assert guarded['teams'][1][0]['hp'] == state['teams'][1][0]['hp']
+        assert guarded['animation'] == {'kind': 'guard', 'actor': 0}
+        assert guarded['teams'][1][0]['moves'][0]['amount'] == state['teams'][1][0]['moves'][0]['amount'] // 2
+        assert 'next hit reduced by 50%' in guarded['log'][-1]
+
+
 def test_action_runs_bot_and_rejects_duplicate_submission():
     with TestClient(app) as client:
         state = start(client)
@@ -49,7 +101,7 @@ def test_action_runs_bot_and_rejects_duplicate_submission():
         assert result['state']['player'] == 0
         target_before = state['teams'][1][0]['hp']
         target_after = result['frames'][0]['teams'][1][0]['hp']
-        assert target_before - target_after == state['teams'][0][0]['moves'][2]['damage']
+        assert target_before - target_after == state['teams'][0][0]['moves'][2]['amount']
         assert result['frames'][0]['animation'] == {'kind': 'attack', 'actor': 0, 'target': 1}
         assert result['frames'][1]['animation']['kind'] == 'attack'
         assert result['frames'][1]['animation']['actor'] == 1

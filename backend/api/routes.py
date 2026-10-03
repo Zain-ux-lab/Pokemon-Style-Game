@@ -18,18 +18,17 @@ from backend.engine.moves import Move
 from backend.engine.turn_engine import BattleState
 
 router = APIRouter(prefix='/api')
-# Temporary attack-only roster. Types are presentation labels until the engine
-# supports them. Keep future effects in the engine, not in this API.
+# Prototype roster. Types are presentation labels until the engine supports them.
 ROSTER = [
     dict(id='mage', name='Mage', type='Magic', maxHp=100, moves=[dict(name='Arcane Bolt', power=22), dict(name='Staff Strike', power=16), dict(name='Comet Crash', power=30)], art='Mage'),
     dict(id='sporestag', name='Sporestag', type='Physical', maxHp=120, moves=[dict(name='Horn Jab', power=20), dict(name='Chitin Kick', power=16), dict(name='Antler Crash', power=28)], art='Sporestag'),
-    dict(id='glowmire', name='Glowmire', type='Spirit', maxHp=90, moves=[dict(name='Ember Beam', power=21), dict(name='Wisp Flicker', power=15), dict(name='Lantern Flare', power=29)], art='Glowmire'),
-    dict(id='bramblebelly', name='Bramblebelly', type='Physical', maxHp=120, moves=[dict(name='Bramble Bash', power=20), dict(name='Root Snare', power=16), dict(name='Thorn Burst', power=28)], art='Sporestag'),
+    dict(id='glowmire', name='Glowmire', type='Spirit', maxHp=90, moves=[dict(name='Ember Beam', power=21), dict(name='Wisp Flicker', power=15), dict(name='Lantern Flare', effect='heal', effect_amount=25)], art='Glowmire'),
+    dict(id='bramblebelly', name='Bramblebelly', type='Physical', maxHp=120, moves=[dict(name='Bramble Bash', power=20), dict(name='Root Snare', effect='guard', effect_amount=50), dict(name='Thorn Burst', power=28)], art='Sporestag'),
     dict(id='veyne', name='Veyne', type='Physical', maxHp=100, moves=[dict(name='Steady Shot', power=22), dict(name='Quick Draw', power=16), dict(name='Piercing Volley', power=30)], art='Mage'),
     dict(id='coil', name='Coil', type='Magic', maxHp=100, moves=[dict(name='Spark Bolt', power=22), dict(name='Static Snap', power=16), dict(name='Thunderhead', power=30)], art='Glowmire'),
-    dict(id='bastion', name='Bastion', type='Physical', maxHp=120, moves=[dict(name='Shield Bash', power=20), dict(name='Stone Fist', power=16), dict(name='Rampart Crash', power=28)], art='Mage'),
+    dict(id='bastion', name='Bastion', type='Physical', maxHp=120, moves=[dict(name='Shield Bash', effect='guard', effect_amount=50), dict(name='Stone Fist', power=16), dict(name='Rampart Crash', power=28)], art='Mage'),
     dict(id='vesperfang', name='Vesperfang', type='Magic', maxHp=100, moves=[dict(name='Dusk Bolt', power=22), dict(name='Night Peck', power=16), dict(name='Moonfall', power=30)], art='Sporestag'),
-    dict(id='hushwing', name='Hushwing', type='Spirit', maxHp=90, moves=[dict(name='Echo Strike', power=21), dict(name='Soft Wing', power=15), dict(name='Resonance', power=29)], art='Glowmire'),
+    dict(id='hushwing', name='Hushwing', type='Spirit', maxHp=90, moves=[dict(name='Echo Strike', power=21), dict(name='Soft Wing', effect='heal', effect_amount=20), dict(name='Resonance', power=29)], art='Glowmire'),
     dict(id='riftclaw', name='Riftclaw', type='Spirit', maxHp=100, moves=[dict(name='Rift Slash', power=22), dict(name='Phase Swipe', power=16), dict(name='Rift Breaker', power=30)], art='Sporestag'),
 ]
 BY_ID = {c['id']: c for c in ROSTER}
@@ -77,6 +76,19 @@ def _get_match(request: Request) -> tuple[str, Match]:
     return session, match
 
 
+def _move_view(creature: Creature, target: Creature, move: Move) -> dict:
+    if move.effect == 'heal':
+        return dict(name=move.name, effect='heal', amount=min(move.effect_amount, creature.max_hp - creature.current_hp),
+                    description=f'Restores up to {move.effect_amount} HP. Uses your turn.', symbol='＋')
+    if move.effect == 'guard':
+        return dict(name=move.name, effect='guard', amount=move.effect_amount,
+                    description=f'Reduces the next incoming hit by {move.effect_amount}%. Uses your turn.', symbol='◈')
+    damage = calculate_damage(creature, target, move)
+    damage = damage * (100 - target.guard_percent) // 100
+    return dict(name=move.name, effect='damage', amount=min(target.current_hp, damage),
+                description='A direct attack. Uses your turn.', symbol='✦')
+
+
 def _snapshot(match: Match) -> dict:
     state = match.battle
     teams = []
@@ -87,9 +99,8 @@ def _snapshot(match: Match) -> dict:
             info = BY_ID[identifier]
             team.append({
                 'id': identifier, 'name': creature.name, 'type': info['type'], 'art': info['art'],
-                'maxHp': creature.max_hp, 'hp': creature.current_hp,
-                'moves': [{'name': move.name, 'damage': min(target.current_hp, calculate_damage(creature, target, move)),
-                           'description': 'A direct attack. Uses your turn.', 'symbol': '✦'} for move in creature.moves],
+                'maxHp': creature.max_hp, 'hp': creature.current_hp, 'guardPercent': creature.guard_percent,
+                'moves': [_move_view(creature, target, move) for move in creature.moves],
             })
         teams.append(team)
     human_actions = legal_actions(state) if (state.replacement_required if state.replacement_required is not None else state.current_player) == 0 else ()
@@ -106,13 +117,20 @@ def _advance(match: Match, action: Action) -> dict:
     actor = state.active_creature(player)
     if action.kind == 'move':
         target = state.active_creature(1 - player)
-        before = target.current_hp
+        target_hp = target.current_hp
+        actor_hp = actor.current_hp
         move = actor.moves[action.index]
         match.battle = simulate(state, action)
         target_after = match.battle.active_creature(1 - player)
-        message = f'{label} · {actor.name} used {move.name} — {before - target_after.current_hp} damage.'
-        if target_after.is_knocked_out:
-            message += f' {target.name} was knocked out.'
+        if move.effect == 'heal':
+            restored = match.battle.active_creature(player).current_hp - actor_hp
+            message = f'{label} · {actor.name} used {move.name} — restored {restored} HP.'
+        elif move.effect == 'guard':
+            message = f'{label} · {actor.name} used {move.name} — next hit reduced by {move.effect_amount}%.'
+        else:
+            message = f'{label} · {actor.name} used {move.name} — {target_hp - target_after.current_hp} damage.'
+            if target_after.is_knocked_out:
+                message += f' {target.name} was knocked out.'
     else:
         match.battle = simulate(state, action)
         name = match.battle.active_creature(player).name
@@ -125,7 +143,9 @@ def _advance(match: Match, action: Action) -> dict:
     match.log = match.log[-100:]
     frame = _snapshot(match)
     if action.kind == 'move':
-        frame['animation'] = {'kind': 'attack', 'actor': player, 'target': 1 - player}
+        frame['animation'] = {'kind': 'attack' if move.effect == 'damage' else move.effect, 'actor': player}
+        if move.effect == 'damage':
+            frame['animation']['target'] = 1 - player
     return frame
 
 
@@ -149,7 +169,7 @@ def new_battle(data: TeamRequest, request: Request, response: Response):
             session = token_urlsafe(32)
         rosters = [data.roster, sample([c for c in BY_ID if c not in data.roster], 3)]
         teams = [[Creature(BY_ID[c]['name'], BY_ID[c]['maxHp'], 10, 10,
-                           tuple(Move(move['name'], move['power']) for move in BY_ID[c]['moves'])) for c in ids] for ids in rosters]
+                           tuple(Move(**move) for move in BY_ID[c]['moves'])) for c in ids] for ids in rosters]
         match = Match(BattleState(*teams), rosters)
         # A reset invalidates any outstanding request from the previous match.
         if session in _matches:
