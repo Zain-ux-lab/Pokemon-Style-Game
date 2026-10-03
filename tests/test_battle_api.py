@@ -182,6 +182,33 @@ def test_reset_invalidates_actions_from_previous_match():
         assert client.get('/api/battle').json()['state'] == new
 
 
+def test_unknown_session_cookie_is_replaced_with_a_server_token():
+    with TestClient(app) as client:
+        supplied = 'untrusted-session-value'
+        client.cookies.set(routes.COOKIE, supplied)
+        response = client.post('/api/battle', json={'roster': PICKS})
+        assert response.status_code == 200
+        issued = response.cookies.get(routes.COOKIE)
+        assert issued and issued != supplied
+        assert issued in routes._matches
+        assert supplied not in routes._matches
+        assert 'HttpOnly' in response.headers['set-cookie']
+        assert 'SameSite=strict' in response.headers['set-cookie']
+
+
+def test_existing_session_reset_does_not_reissue_the_incoming_cookie():
+    with TestClient(app) as client:
+        previous = start(client)
+        session = client.cookies.get(routes.COOKIE)
+        response = client.post('/api/battle', json={'roster': PICKS})
+        assert response.status_code == 200
+        assert 'set-cookie' not in response.headers
+        assert client.cookies.get(routes.COOKIE) == session
+        current = client.get('/api/battle').json()['state']
+        assert current == response.json()['state']
+        assert current['revision'] > previous['revision']
+
+
 def test_failed_bot_response_does_not_commit_half_a_turn(monkeypatch):
     def broken_bot(*args):
         raise RuntimeError('Unexpected engine failure')
