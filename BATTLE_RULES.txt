@@ -31,8 +31,8 @@ selection in the README and starter-code comments.
 - Each character has three move choices in the current prototype.
 - The roster names and current move names are defined in
   `backend/api/routes.py`.
-- For the next combat-engine update, use these proposed special-move
-  assignments, replacing one direct attack for each listed character:
+- These special-move assignments replace one direct attack for each listed
+  character:
   - Bramblebelly — Root Snare: guard against the next incoming attack,
     reducing its damage by 50%. The guard is consumed by that hit. The move
     deals no damage.
@@ -44,9 +44,8 @@ selection in the README and starter-code comments.
   - Hushwing — Soft Wing: restore 20 HP, up to the character's maximum HP.
     The move deals no damage.
 - All other characters keep their three direct attacks for this update.
-- These effects are rules for the upcoming engine implementation; the current
-  playable build still treats all roster moves as direct attacks until that
-  implementation is merged.
+- The engine, bot, and browser battle use these effects. Healing and guarding
+  each consume one action.
 - No status effects are included in this release. Poison, stun, and other
   continuing conditions are deferred.
 - Type names are labels only in this release. Type effectiveness and damage

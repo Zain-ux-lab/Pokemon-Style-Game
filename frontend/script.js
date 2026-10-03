@@ -56,7 +56,7 @@ function render() {
   for (let p=0; p<2; p++) {
     const c = current(p);
     $(`hud-${p}`).style.setProperty('--type', TYPES[c.type]);
-    $(`hud-${p}`).innerHTML = `<div class="side-label">${p===0?'YOU':'OPPONENT'} <span>${p===0?'PLAYER':'TACTICAL BOT'}</span></div><div class="hud-top"><strong>${c.name}</strong><span class="type">${c.type.toUpperCase()}</span></div><div class="health" role="meter" aria-label="${p===0?'Your':'Opponent'} health" aria-valuemin="0" aria-valuemax="${c.maxHp}" aria-valuenow="${c.hp}"><span style="width:${100*c.hp/c.maxHp}%"></span></div><div class="hp">${c.hp} / ${c.maxHp} HP</div>`;
+    $(`hud-${p}`).innerHTML = `<div class="side-label">${p===0?'YOU':'OPPONENT'} <span>${p===0?'PLAYER':'TACTICAL BOT'}</span></div><div class="hud-top"><strong>${c.name}</strong><span class="type">${c.type.toUpperCase()}</span></div><div class="health" role="meter" aria-label="${p===0?'Your':'Opponent'} health" aria-valuemin="0" aria-valuemax="${c.maxHp}" aria-valuenow="${c.hp}"><span style="width:${100*c.hp/c.maxHp}%"></span></div><div class="hp">${c.hp} / ${c.maxHp} HP</div>${c.guardPercent?`<div class="guard-state">◈ NEXT HIT −${c.guardPercent}%</div>`:''}`;
     $(`fighter-${p}`).innerHTML = artwork(c);
     $(`fighter-${p}`).classList.toggle('fainted', c.hp===0);
   }
@@ -81,7 +81,10 @@ function render() {
 function preview(index) {
   const c=current(), move=c.moves[index];
   $('details').style.setProperty('--type',TYPES[c.type]);
-  $('details').innerHTML=`<div class="detail-kicker">ATTACK</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${move.damage}<small>damage to ${current(1).name}</small></div>`;
+  const label=move.effect==='heal'?'RECOVERY':move.effect==='guard'?'GUARD':'ATTACK';
+  const value=move.effect==='guard'?`${move.amount}%`:move.amount;
+  const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':`damage to ${current(1).name}`;
+  $('details').innerHTML=`<div class="detail-kicker">${label}</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${value}<small>${unit}</small></div>`;
 }
 function hideDetails() {
   clearTimeout(detailTimer); document.querySelector('.detail-panel').classList.remove('is-visible');
@@ -123,8 +126,14 @@ async function sendAction(kind,index) {
         void attacker.offsetWidth;
         attacker.classList.add('attack-animation'); target.classList.add('hit-animation');
         setTimeout(()=>{attacker.classList.remove('attack-animation');target.classList.remove('hit-animation');},460);
+      } else if (frame.animation?.kind==='heal' || frame.animation?.kind==='guard') {
+        const fighter=$(`fighter-${frame.animation.actor}`), animation=`${frame.animation.kind}-animation`;
+        fighter.classList.remove(animation);
+        void fighter.offsetWidth;
+        fighter.classList.add(animation);
+        setTimeout(()=>fighter.classList.remove(animation),460);
       }
-      if (i<data.frames.length-1) await delay(frame.animation?.kind==='attack'?500:700);
+      if (i<data.frames.length-1) await delay(frame.animation?500:700);
     }
   } catch (error) {
     // Read the saved result after a lost response; never replay a move blindly.
@@ -140,7 +149,9 @@ async function sendAction(kind,index) {
 function renderChoices() {
   $('team-options').innerHTML=catalog.map(c=>{
     const rank=selection.indexOf(c.id);
-    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${c.type} · ${c.maxHp} HP</small><small>${c.moves[0].name} · ${c.moves[0].power} power</small></button>`;
+    const featured=c.moves.find(m=>m.effect)||c.moves[0];
+    const strength=featured.effect?`${featured.effect} ${featured.effect_amount}${featured.effect==='guard'?'%':' HP'}`:`${featured.power} power`;
+    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${c.type} · ${c.maxHp} HP</small><small>${featured.name} · ${strength}</small></button>`;
   }).join('');
   $('team-options').querySelectorAll('button').forEach(button=>button.onclick=()=>{
     const id=button.dataset.id; selection=selection.includes(id)?selection.filter(c=>c!==id):[...selection,id];
