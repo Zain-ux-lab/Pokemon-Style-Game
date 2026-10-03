@@ -167,6 +167,7 @@ def new_battle(data: TeamRequest, request: Request, response: Response):
             if len(_matches) >= MAX_SESSIONS:
                 raise HTTPException(503, 'The demo is busy. Please try again shortly.')
             session = token_urlsafe(32)
+            response.set_cookie(COOKIE, session, httponly=True, samesite='strict', secure=request.url.scheme == 'https')
         rosters = [data.roster, sample([c for c in BY_ID if c not in data.roster], 3)]
         teams = [[Creature(BY_ID[c]['name'], BY_ID[c]['maxHp'], 10, 10,
                            tuple(Move(**move) for move in BY_ID[c]['moves'])) for c in ids] for ids in rosters]
@@ -175,7 +176,6 @@ def new_battle(data: TeamRequest, request: Request, response: Response):
         if session in _matches:
             match.revision = _matches[session].revision + 1
         _matches[session] = match
-        response.set_cookie(COOKIE, session, httponly=True, samesite='strict', secure=request.url.scheme == 'https')
         return {'state': _snapshot(match)}
 
 
