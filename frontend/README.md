@@ -6,11 +6,14 @@ Start the Python app from the repository root and open http://127.0.0.1:8000/:
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python -m uvicorn backend.main:app --reload
+python -m uvicorn backend.main:app
 ```
 
 The Python app serves both the screen and the battle API. Opening `index.html`
 directly or using the old static server on port 8080 will not run battles.
+
+Leave automatic reload off while playtesting: battles live in server memory,
+and restarting the server ends active battles. Restart manually after backend edits.
 
 Pick three different characters. Selection order determines your starting
 character; you move first. The bot randomly draws three of the remaining seven.
