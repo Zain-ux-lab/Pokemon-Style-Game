@@ -133,7 +133,9 @@ async function sendAction(kind,index) {
         fighter.classList.add(animation);
         setTimeout(()=>fighter.classList.remove(animation),460);
       }
-      if (i<data.frames.length-1) await delay(frame.animation?500:700);
+      // Finish the animation, then leave a brief beat before the bot responds.
+      if (frame.animation) await delay(460);
+      if (i<data.frames.length-1) await delay(650);
     }
   } catch (error) {
     // Read the saved result after a lost response; never replay a move blindly.
