@@ -12,6 +12,41 @@ function element() {
     querySelector(){return element();}, showModal(){this.open=true;}, close(){this.open=false;}};
 }
 
+test('bot waits after the player animation and controls stay locked through its response', async () => {
+  const nodes = new Map();
+  const get = id => {if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};
+  const character = {id:'mage',name:'Mage',art:'Mage',type:'Magic',hp:100,maxHp:100,moves:[]};
+  const initial = {teams:[[character],[character]],active:[0,0],player:0,replacement:null,winner:null,turn:1,revision:0,actions:[{kind:'move',index:0}],log:[]};
+  const human = {...initial, player:1, turn:2, animation:{kind:'attack',actor:0,target:1}};
+  const bot = {...initial, turn:3, revision:1, animation:{kind:'attack',actor:1,target:0}};
+  const replies = [[],{state:initial},{frames:[human,bot],state:bot}];
+  const timers = [];
+  const waits = [];
+  const tick = () => {const batch=timers.splice(0);batch.forEach(fn=>fn());};
+  const context = vm.createContext({
+    document:{getElementById:get,querySelector:get,querySelectorAll:()=>[],createElement:element,addEventListener(){}},
+    window:{addEventListener(){}},setTimeout:(fn,ms)=>{waits.push(ms);timers.push(fn);return timers.length;},clearTimeout(){},AbortSignal,
+    fetch:async()=>({ok:true,json:async()=>replies.shift()}),
+  });
+  vm.runInContext(readFileSync(new URL('../frontend/script.js',`file://${__filename}`),'utf8'),context);
+  await new Promise(setImmediate);
+  const action = vm.runInContext('sendAction("move",0)',context);
+  await new Promise(setImmediate);
+  assert.equal(vm.runInContext('state.turn',context),2);
+  assert.equal(vm.runInContext('allowed("move",0)',context),false);
+  tick();
+  await new Promise(setImmediate);
+  assert.equal(vm.runInContext('state.turn',context),2,'Bot must wait after the player animation');
+  tick();
+  await new Promise(setImmediate);
+  assert.equal(vm.runInContext('state.turn',context),3);
+  assert.equal(vm.runInContext('allowed("move",0)',context),false,'Bot animation must finish before another action');
+  tick();
+  await action;
+  assert.deepEqual(waits,[460,460,650,460,460]);
+  assert.equal(vm.runInContext('allowed("move",0)',context),true);
+});
+
 test('retry restores an existing match and dismisses the initial team picker', async () => {
   const nodes = new Map();
   const get = id => {if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};

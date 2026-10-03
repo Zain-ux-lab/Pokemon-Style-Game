@@ -1,4 +1,4 @@
-"""Run the local single-player game: uvicorn backend.main:app --reload."""
+"""Run the local single-player game: python -m uvicorn backend.main:app."""
 from pathlib import Path
 
 from fastapi import FastAPI

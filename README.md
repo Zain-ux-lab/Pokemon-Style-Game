@@ -241,8 +241,11 @@ pip install -r requirements.txt
 ### Run
 
 ```bash
-uvicorn backend.main:app --reload
+python -m uvicorn backend.main:app
 ```
+
+Battles are held in server memory. Restarting the server ends active battles;
+leave automatic reload off while playtesting. Restart manually after backend edits.
 
 Or with Docker:
 
