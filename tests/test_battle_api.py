@@ -26,8 +26,8 @@ def test_roster_selection_and_opponent_are_disjoint():
         roster = client.get('/api/roster')
         assert roster.status_code == 200
         assert len(roster.json()) == 10
-        assert all(len(character['moves']) == 3 for character in roster.json())
-        assert all(len({move['name'] for move in character['moves']}) == 3 for character in roster.json())
+        assert all(len(character['moves']) == 4 for character in roster.json())
+        assert all(len({move['name'] for move in character['moves']}) == 4 for character in roster.json())
         state = start(client)
         assert [c['id'] for c in state['teams'][0]] == PICKS
         enemies = [c['id'] for c in state['teams'][1]]
@@ -41,11 +41,11 @@ def test_special_moves_are_described_by_the_roster_and_battle_state():
     with TestClient(app) as client:
         roster = {character['id']: character for character in client.get('/api/roster').json()}
         assert roster['glowmire']['moves'][2]['effect'] == 'heal'
-        assert roster['glowmire']['moves'][2]['effect_amount'] == 25
-        assert roster['hushwing']['moves'][1]['effect_amount'] == 20
+        assert roster['glowmire']['moves'][2]['effect_amount'] == 12
+        assert roster['hushwing']['moves'][1]['effect_amount'] == 10
         assert roster['bramblebelly']['moves'][1]['effect'] == 'guard'
         assert roster['bastion']['moves'][0]['effect_amount'] == 50
-        assert all(len(character['moves']) == 3 for character in roster.values())
+        assert all(len(character['moves']) == 4 for character in roster.values())
 
         state = start(client)
         moves = state['teams'][0][2]['moves']
@@ -62,12 +62,12 @@ def test_healing_restores_only_missing_hp_and_spends_one_action():
         state = attack.json()['state']
         missing_hp = state['teams'][0][0]['maxHp'] - state['teams'][0][0]['hp']
         assert missing_hp > 0
-        assert state['teams'][0][0]['moves'][2]['amount'] == min(25, missing_hp)
+        assert state['teams'][0][0]['moves'][2]['amount'] == min(12, missing_hp)
 
         response = client.post('/api/battle/actions', json={'kind': 'move', 'index': 2, 'revision': state['revision']})
         assert response.status_code == 200
         frame = response.json()['frames'][0]
-        assert frame['teams'][0][0]['hp'] - state['teams'][0][0]['hp'] == min(25, missing_hp)
+        assert frame['teams'][0][0]['hp'] - state['teams'][0][0]['hp'] == min(12, missing_hp)
         assert frame['teams'][1][0]['hp'] == state['teams'][1][0]['hp']
         assert frame['animation'] == {'kind': 'heal', 'actor': 0}
         assert 'restored' in frame['log'][-1]

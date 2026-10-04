@@ -2,7 +2,8 @@
 
 from dataclasses import dataclass, field
 
-from .moves import Move
+from .moves import Move, TYPES
+from .status_effects import Status
 
 
 @dataclass
@@ -16,8 +17,13 @@ class Creature:
     moves: tuple[Move, ...] = field(default_factory=tuple)
     current_hp: int | None = None
     guard_percent: int = 0
+    battle_type: str = "Neutral"
+    statuses: dict[str, Status] = field(default_factory=dict)
+    last_damage: int = 0
 
     def __post_init__(self) -> None:
+        if self.battle_type not in TYPES:
+            raise ValueError("unknown creature type")
         if not self.name.strip():
             raise ValueError("creature name must not be empty")
         if self.max_hp <= 0:
