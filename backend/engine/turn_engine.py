@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 
 from .creature import Creature
-from .damage import direct_damage, recoil_damage
+from .damage import direct_damage, recoil_damage, drain_healing
 from .moves import Move
 from .status_effects import Status, DURATIONS
 
@@ -97,7 +97,7 @@ def resolve_turn(state: BattleState, move: Move) -> TurnResult:
         if consumed:
             defender.statuses.pop(consumed, None)
         if move.mechanic == 'drain':
-            healed = min(damage // 2, attacker.max_hp - attacker.current_hp)
+            healed = drain_healing(attacker, damage)
             attacker.current_hp += healed
             state.events.append(f'{attacker.name} drained {healed} HP.')
         if move.mechanic == 'dread' and target_hp * 2 < defender.max_hp and not defender.is_knocked_out:
@@ -113,9 +113,10 @@ def resolve_turn(state: BattleState, move: Move) -> TurnResult:
     elif move.effect == "heal":
         healed = min(move.effect_amount, attacker.max_hp - attacker.current_hp)
         attacker.current_hp += healed
-    elif move.effect == 'guard':
+    if move.effect == 'guard' and not attacker.is_knocked_out:
         guard_percent = move.effect_amount
         attacker.guard_percent = guard_percent
+        state.events.append(f'{attacker.name} guards the next hit by {guard_percent}%.')
     if move.effect == 'status':
         holder = attacker if move.mechanic == 'thorns' else defender
         slot = None

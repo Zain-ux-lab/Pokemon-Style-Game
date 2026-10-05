@@ -45,8 +45,8 @@ class Move:
             if self.effect_amount is None or self.effect_amount <= 0:
                 raise ValueError("healing amount must be greater than zero")
         else:
-            if self.power != 0:
-                raise ValueError("guard move must not have attack power")
+            if self.power < 0:
+                raise ValueError("guard move power must not be negative")
             if self.effect_amount is None or not 1 <= self.effect_amount <= 100:
                 raise ValueError("guard amount must be between 1 and 100 percent")
         if self.effect in {"heal", "guard"} and self.mechanic:

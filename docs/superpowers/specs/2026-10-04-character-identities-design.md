@@ -35,7 +35,7 @@ owns the interface. This change does not edit frontend files.
 |---|---|
 | echo | Deal 10 delayed damage after your next action; either character switching cancels it. |
 | spores | For two actions, damaging moves cause 6 recoil. Switching clears it. |
-| drain | Recover half the direct HP damage dealt, rounded down. |
+| drain | Recover 25% of direct HP damage dealt, rounded down, up to 4 HP. |
 | thorns | Reflect 14 damage from contact hits until after your next action. |
 | mark | Mark for two actions. Piercing Volley consumes the mark for +18 damage. |
 | exploit | Consume a mark for +18 damage. |
@@ -70,7 +70,7 @@ These are initial playtest values, not a claim of competitive balance.
 | Arcane Bolt | 22 | Magic | Direct attack. |
 | Staff Strike | 20 | Physical | Contact. Direct attack. |
 | Spell Echo | 15 | Magic | Deal 10 delayed damage after your next action; either character switching cancels it. |
-| Arcane Ward | 50% guard | — | Uses one action. |
+| Arcane Ward | 12 | Magic | Attack and protect against 30% of next hit. |
 
 ### Sporestag — Physical, 120 HP
 
@@ -79,14 +79,14 @@ These are initial playtest values, not a claim of competitive balance.
 | Horn Jab | 22 | Physical | Contact. Direct attack. |
 | Spore Cloud | 10 | Spirit | For two actions, damaging moves cause 6 recoil. Switching clears it. |
 | Antler Harvest | 18 | Spirit | Contact. Consume spores for +10 damage, ending their ongoing pressure. |
-| Chitin Shell | 50% guard | — | Uses one action. |
+| Chitin Shell | 12 | Physical | Contact attack and protect against 30% of next hit. |
 
 ### Glowmire — Spirit, 90 HP
 
 | Move | Power / recovery | Type | Effect |
 |---|---|---|---|
 | Ember Beam | 23 | Magic | Direct attack. |
-| Soul Siphon | 16 | Spirit | Recover half the direct HP damage dealt, rounded down. |
+| Soul Siphon | 16 | Spirit | Recover 25% of direct HP damage dealt, rounded down, up to 4 HP. |
 | Lantern Flare | 12 HP | — | Uses one action. |
 | Revealing Light | 10 | Spirit | Next direct hit deals 25% more damage; expires after two actions. |
 
@@ -95,7 +95,7 @@ These are initial playtest values, not a claim of competitive balance.
 | Move | Power / recovery | Type | Effect |
 |---|---|---|---|
 | Bramble Bash | 24 | Physical | Contact. Direct attack. |
-| Root Snare | 50% guard | — | Uses one action. |
+| Root Snare | 12 | Spirit | Attack and protect against 30% of next hit. |
 | Thorn Burst | 20 | Spirit | Direct attack. |
 | Thorn Coat | 10 | Physical | Reflect 14 damage from contact hits until after your next action. |
 
@@ -121,7 +121,7 @@ These are initial playtest values, not a claim of competitive balance.
 
 | Move | Power / recovery | Type | Effect |
 |---|---|---|---|
-| Shield Bash | 50% guard | — | Uses one action. |
+| Shield Bash | 12 | Physical | Contact attack and protect against 30% of next hit. |
 | Stone Fist | 23 | Physical | Contact. Direct attack. |
 | Reprisal | 14 | Physical | Contact. Add half the direct damage received last enemy action, capped at 15. |
 | Rune Pulse | 20 | Magic | Direct attack. |
@@ -165,3 +165,9 @@ three defender types. Ten seeded bot-v-bot matches finished in 33–48 actions,
 with a maximum observed decision time of 0.094 seconds on the test machine.
 
 UI integration is intentionally separate: see docs/GAMEPLAY_UI_HANDOFF.md.
+
+## 5 October playtest update
+Move details display unmodified attack*power/defense base damage. Matchups,
+conditional bonuses, guard and target remaining HP change resolved damage only.
+All four guard moves now attack at 12 power and grant 30% next-hit protection.
+Soul Siphon restores floor(actual direct damage/4), capped at 4 HP and missing HP.

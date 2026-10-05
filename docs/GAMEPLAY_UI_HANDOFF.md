@@ -34,3 +34,10 @@ Use the project virtual environment. Run `python -m pytest -q`, then
 `node --test tests/test_client.cjs`. Start `python -m uvicorn backend.main:app`.
 Restart once after pulling backend changes; existing in-memory matches are lost.
 The new rules require a new battle. Do not enable reload while playtesting.
+
+## 5 October preview update
+Damage previews add `baseDamage` (before type, conditions, guard or HP capping).
+`amount` retains exact resolved direct damage for API consumers and tests.
+The hover display uses baseDamage and labels it base damage. Guard attacks are
+`effect: damage` with `guardPercent: 30` and have attack animations.
+Soul Siphon recovery is 25%, rounded down, capped at 4 HP.

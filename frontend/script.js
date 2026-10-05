@@ -82,8 +82,8 @@ function preview(index) {
   const c=current(), move=c.moves[index];
   $('details').style.setProperty('--type',TYPES[c.type]);
   const label=move.effect==='heal'?'RECOVERY':move.effect==='guard'?'GUARD':'ATTACK';
-  const value=move.effect==='guard'?`${move.amount}%`:move.amount;
-  const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':`damage to ${current(1).name}`;
+  const value=move.effect==='guard'?`${move.amount}%`:move.effect==='damage'?(move.baseDamage??move.amount):move.amount;
+  const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':'base damage';
   $('details').innerHTML=`<div class="detail-kicker">${label}</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${value}<small>${unit}</small></div>`;
 }
 function hideDetails() {

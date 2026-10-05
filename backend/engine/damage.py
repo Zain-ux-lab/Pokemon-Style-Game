@@ -5,11 +5,20 @@ from .moves import Move
 from .type_chart import effectiveness_percent
 
 
+def base_damage(attacker: Creature, defender: Creature, move: Move) -> int:
+    """Unmodified damage before matchup, conditions, guard or remaining HP."""
+    return max(1, attacker.attack * move.power // defender.defense) if move.power else 0
+
+
+def drain_healing(attacker: Creature, damage: int) -> int:
+    return min(damage // 4, 4, attacker.max_hp - attacker.current_hp)
+
+
 def calculate_damage(attacker: Creature, defender: Creature, move: Move) -> int:
     """Return typed damage with setup modifiers, before guard and HP capping."""
     if move.power == 0:
         return 0
-    damage = max(1, attacker.attack * move.power // defender.defense)
+    damage = base_damage(attacker, defender, move)
     damage = max(1, damage * effectiveness_percent(move.damage_type, defender.battle_type) // 100)
     if move.mechanic == 'exploit' and 'mark' in defender.statuses:
         damage += 18

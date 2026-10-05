@@ -71,7 +71,7 @@ def test_drain_uses_actual_damage_not_overkill():
     s.active_creature(1).current_hp = 5
     result = resolve_turn(s,move)
     assert result.damage == 5
-    assert s.active_creature(0).current_hp == 52
+    assert s.active_creature(0).current_hp == 51
 
 
 def test_thorns_only_contact_and_no_recursive_reflection():

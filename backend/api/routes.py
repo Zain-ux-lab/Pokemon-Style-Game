@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from backend.bot.adapter import Action, legal_actions, simulate
 from backend.bot.search import choose_action
 from backend.engine.creature import Creature
-from backend.engine.damage import direct_damage, recoil_damage
+from backend.engine.damage import direct_damage, recoil_damage, base_damage, drain_healing
 from backend.engine.status_effects import DESCRIPTIONS
 from backend.engine.type_chart import effectiveness_percent
 from backend.roster import ROSTER, BY_ID
@@ -73,24 +73,27 @@ def _move_view(creature: Creature, target: Creature, move: Move) -> dict:
     if move.effect == 'heal':
         return dict(name=move.name, effect='heal', amount=min(move.effect_amount, creature.max_hp - creature.current_hp),
                     description=f'Restores up to {move.effect_amount} HP. Uses your turn.' + echo_note, symbol='＋', **metadata)
-    if move.effect == 'guard':
+    if move.effect == 'guard' and move.power == 0:
         return dict(name=move.name, effect='guard', amount=move.effect_amount,
                     description=f'Reduces the next incoming hit by {move.effect_amount}%. Uses your turn.' + echo_note, symbol='◈', **metadata)
     if move.effect == 'status' and move.power == 0:
         return dict(name=move.name, effect='status', amount=0, description=DESCRIPTIONS[move.mechanic] + echo_note,
                     symbol='◎', **metadata)
     damage = direct_damage(creature, target, move)
-    healed = min(damage // 2, creature.max_hp - creature.current_hp) if move.mechanic == 'drain' else 0
+    healed = drain_healing(creature, damage) if move.mechanic == 'drain' else 0
     recoil = min(creature.current_hp + healed, recoil_damage(creature, target, move))
     delayed = min(10, target.current_hp - damage) if 'echo' in creature.statuses and creature.current_hp + healed > recoil else 0
     metadata['delayedDamage'] = delayed
     description = f'{move.damage_type} / {"contact" if move.contact else "ranged"}. '
     description += DESCRIPTIONS.get(move.mechanic, 'A direct attack.')
+    if move.effect == 'guard':
+        description += f' Grants {move.effect_amount}% protection against the next hit.'
     if recoil:
         description += f' Causes {recoil} self-damage.'
     if delayed:
         description += f' Pending echo deals {delayed} additional damage this action.'
-    return dict(name=move.name, effect='damage', amount=damage, healing=healed, selfDamage=recoil,
+    return dict(name=move.name, effect='damage', amount=damage, baseDamage=base_damage(creature,target,move),
+                guardPercent=move.effect_amount if move.effect == 'guard' else 0, healing=healed, selfDamage=recoil,
                 effectiveness=effectiveness_percent(move.damage_type, target.battle_type),
                 description=description, symbol='✦', **metadata)
 
@@ -133,7 +136,7 @@ def _advance(match: Match, action: Action) -> dict:
         if move.effect == 'heal':
             restored = match.battle.active_creature(player).current_hp - actor_hp
             message = f'{label} · {actor.name} used {move.name} — restored {restored} HP.'
-        elif move.effect == 'guard':
+        elif move.effect == 'guard' and move.power == 0:
             message = f'{label} · {actor.name} used {move.name} — next hit reduced by {move.effect_amount}%.'
         elif move.effect == 'status' and move.power == 0:
             message = f'{label} · {actor.name} used {move.name}.'

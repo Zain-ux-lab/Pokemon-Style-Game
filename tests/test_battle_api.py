@@ -44,7 +44,7 @@ def test_special_moves_are_described_by_the_roster_and_battle_state():
         assert roster['glowmire']['moves'][2]['effect_amount'] == 12
         assert roster['hushwing']['moves'][1]['effect_amount'] == 10
         assert roster['bramblebelly']['moves'][1]['effect'] == 'guard'
-        assert roster['bastion']['moves'][0]['effect_amount'] == 50
+        assert roster['bastion']['moves'][0]['effect_amount'] == 30
         assert all(len(character['moves']) == 4 for character in roster.values())
 
         state = start(client)
@@ -82,11 +82,12 @@ def test_guard_protects_against_the_next_bot_attack():
         assert response.status_code == 200
         result = response.json()
         guarded = result['frames'][0]
-        assert guarded['teams'][0][0]['guardPercent'] == 50
-        assert guarded['teams'][1][0]['hp'] == state['teams'][1][0]['hp']
-        assert guarded['animation'] == {'kind': 'guard', 'actor': 0}
-        assert guarded['teams'][1][0]['moves'][0]['amount'] == state['teams'][1][0]['moves'][0]['amount'] // 2
-        assert 'next hit reduced by 50%' in guarded['log'][-1]
+        assert guarded['teams'][0][0]['guardPercent'] == 30
+        preview=state['teams'][0][0]['moves'][1]
+        assert guarded['teams'][1][0]['hp'] == state['teams'][1][0]['hp']-preview['amount']
+        assert guarded['animation'] == {'kind': 'attack', 'actor': 0, 'target': 1}
+        assert guarded['teams'][1][0]['moves'][0]['amount'] == state['teams'][1][0]['moves'][0]['amount'] * 70 // 100
+        assert 'guards the next hit by 30%' in guarded['log'][-1]
 
 
 def test_action_runs_bot_and_rejects_duplicate_submission():
