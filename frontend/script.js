@@ -49,6 +49,13 @@ function render() {
     return;
   }
   hideDetails();
+  if (state.arena) {
+    const arena=document.querySelector('.arena');
+    arena.style.backgroundImage=`url("${state.arena.image}")`;
+    arena.setAttribute('aria-label',`${state.arena.name} battlefield`);
+    $('arena-name').textContent=state.arena.name.toUpperCase();
+    document.title=`BattleLab · ${state.arena.name}`;
+  }
   for (let p=0; p<2; p++) {
     const c = current(p);
     $(`hud-${p}`).style.setProperty('--type', TYPES[c.type]);

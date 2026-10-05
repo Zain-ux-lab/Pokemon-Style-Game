@@ -1,7 +1,7 @@
 """Single-player browser sessions using the shared engine and tactical bot."""
 from copy import deepcopy
 from dataclasses import dataclass, field
-from random import sample
+from random import sample, choice
 from secrets import token_urlsafe
 from threading import RLock
 from time import monotonic
@@ -17,6 +17,7 @@ from backend.engine.damage import direct_damage, recoil_damage, base_damage, dra
 from backend.engine.status_effects import DESCRIPTIONS
 from backend.engine.type_chart import effectiveness_percent
 from backend.roster import ROSTER, BY_ID
+from backend.arenas import ARENAS
 from backend.engine.moves import Move
 from backend.engine.turn_engine import BattleState
 
@@ -34,6 +35,7 @@ class Match:
     turn: int = 1
     log: list[str] = field(default_factory=lambda: ['Teams revealed. You move first.'])
     touched: float = field(default_factory=monotonic)
+    arena_index: int = 0
 
 
 # Local demo storage: one process. Use a shared store before running workers.
@@ -116,7 +118,7 @@ def _snapshot(match: Match) -> dict:
             })
         teams.append(team)
     human_actions = legal_actions(state) if (state.replacement_required if state.replacement_required is not None else state.current_player) == 0 else ()
-    return dict(teams=teams, active=state.active_indices[:], player=state.current_player,
+    return dict(teams=teams, arena=ARENAS[match.arena_index].copy(), active=state.active_indices[:], player=state.current_player,
                 replacement=state.replacement_required, winner=state.winner,
                 turn=match.turn, revision=match.revision, log=match.log[:],
                 actions=[dict(kind=a.kind, index=a.index) for a in human_actions])
@@ -194,6 +196,8 @@ def new_battle(data: TeamRequest, request: Request, response: Response):
         teams = [[Creature(BY_ID[c]['name'], BY_ID[c]['maxHp'], 10, 10,
                            tuple(Move(**move) for move in BY_ID[c]['moves']), battle_type=BY_ID[c]['type']) for c in ids] for ids in rosters]
         match = Match(BattleState(*teams), rosters)
+        previous = _matches[session].arena_index if session in _matches else None
+        match.arena_index = choice([i for i in range(len(ARENAS)) if i != previous])
         # A reset invalidates any outstanding request from the previous match.
         if session in _matches:
             match.revision = _matches[session].revision + 1
