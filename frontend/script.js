@@ -1,7 +1,3 @@
-function sprite(name){
- const shapes = name==='Mage' ? '<path fill="#394d65" d="M15 28h34l8 30H9z"/><path fill="#526e86" d="M22 28h20l7 26H16z"/><path fill="#e4c9a0" d="M24 17h16v17H24z"/><path fill="#e6e0cf" d="M22 27h21v8h-4v7h-5v5h-6v-6h-4z"/><path fill="#344b63" d="M13 18h38v6H13zM23 10h20v9H23zM28 3h10v9H28zM33 0h5v4h-5z"/><path fill="#bea16b" d="M20 17h25v3H20z"/><path fill="#27353c" d="M13 56h14v5H13zM36 56h15v5H36z"/><path fill="#a07143" d="M51 22h3v32h-3z"/><path fill="#9fdbcd" d="M49 17h7v7h-7z"/><path fill="#313c41" d="M27 24h3v3h-3zM36 24h3v3h-3z"/>' : name==='Sporestag' ? '<path fill="#455742" d="M8 45h8v13H8zM22 46h7v14h-7zM39 46h7v14h-7zM51 43h7v15h-7z"/><path fill="#7f9152" d="M8 26h46v25H8zM16 19h29v9H16z"/><path fill="#a4ad66" d="M18 23h25v20H18z"/><path fill="#576b48" d="M33 23h5v27h-5z"/><path fill="#64704b" d="M4 34h18v16H4z"/><path fill="#d6c39a" d="M7 19h5v18H7zM2 16h5v8H2zM11 14h5v10h-5z"/><path fill="#e6dec1" d="M24 11h4v12h-4zM42 17h4v10h-4z"/><path fill="#bd7754" d="M17 8h18v7H17zM21 4h10v5H21zM37 15h16v6H37z"/><path fill="#e8c095" d="M21 8h4v3h-4zM28 9h4v3h-4zM41 16h4v3h-4z"/><path fill="#182e2b" d="M7 36h4v4H7z"/>' : '<path fill="#8cb9af" d="M20 54h24v4H20zM25 59h13v3H25z"/><path fill="#415d60" d="M19 17h26v36H19zM15 21h34v5H15zM15 47h34v6H15zM24 7h16v12H24z"/><path fill="#98b9a3" d="M28 10h8v7h-8z"/><path fill="#dbb670" d="M23 25h18v21H23z"/><path fill="#f6d994" d="M27 28h10v14H27z"/><path fill="#fff1bd" d="M30 30h5v8h-5z"/><path fill="#314b51" d="M29 22h4v26h-4zM19 34h25v3H19z"/><path fill="#bad7c4" d="M9 28h5v13H9zM50 26h5v13h-5z"/>';
- return `<svg class="sprite" viewBox="0 0 64 64" shape-rendering="crispEdges" role="img" aria-label="${name} placeholder artwork"><ellipse cx="32" cy="61" rx="24" ry="2" fill="#263d3320"/>${shapes}</svg>`;
-}
 // The server owns combat, legal actions, damage previews and bot decisions.
 let state = null;
 let catalog = [];
@@ -36,7 +32,7 @@ function setError(message = '') {
 }
 function current(player = 0) { return state.teams[player][state.active[player]]; }
 function allowed(kind, index) { return !busy && !disconnected && state?.actions.some(a => a.kind === kind && a.index === index); }
-function artwork(c) { return sprite(c.art).replace(`${c.art} placeholder artwork`, `${c.name} placeholder artwork`); }
+function artwork(c) { return `<img class="sprite" src="assets/characters/${c.id}.png" alt="${c.name}" decoding="async">`; }
 function portrait(c, index, enemy = false) {
   const player = enemy ? 1 : 0;
   const active = state.active[player] === index;
