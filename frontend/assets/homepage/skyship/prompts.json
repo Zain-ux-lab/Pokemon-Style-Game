@@ -1,0 +1,14 @@
+{
+  "updated": "2026-10-06",
+  "tool": "built-in image generation",
+  "assets": [
+    {
+      "key": "skyshipBackgroundPrompt",
+      "prompt": "Edit this approved homepage artwork into a clean BACKGROUND PLATE for a real layered website. Preserve the exact illustrated skyship deck, wooden rail, ropes, blue sail on the right, sunrise cloud sea, blue sky, far floating islands and distant fantasy city. Preserve composition, perspective, warm golden lighting, colors and detailed bold cel-shaded rendering. REMOVE ALL website elements and ALL characters: no text, title, logo, navigation, buttons, icons, scroll cues, Bastion or dragon. Reconstruct the sky, clouds, deck and scenery naturally behind their former positions. The foreground wooden airship deck at bottom-right should be empty and ready for a separately composited character; contact shadows must be removed with characters. The left half should remain open luminous sky and cloud landscape, ready for live website title and buttons. Keep the blue sail filling only the far right edge; no new pillars or objects. This is an asset extraction, not a new scene. No new battle arena, no additional people or dragons, no photo style, no pixelation. Landscape 16:9, high-resolution wide game background."
+    },
+    {
+      "key": "skyshipBastionPrompt",
+      "prompt": "Extract ONLY Bastion from the supplied approved homepage image onto a genuinely TRANSPARENT background. Preserve the exact knight design, pose, proportions and cel-shaded rendering: ivory and gold armor, royal blue scarf and cape, great shield extended toward the LEFT, sword lifted behind his shoulder diagonally UPPER LEFT, helmet visor looking LEFT and upward toward a distant dragon. Full body including both firmly braced boots, entire sword tip and shield, nothing cropped. Faithfully reproduce the knight in the right half of the reference, three-quarter pose with legs apart and visible chest/side armor, ready to attack. Preserve sunrise golden edge lighting, detailed clean linework and material shadows on armor. Do not return him to a neutral standing stance. Only one knight and his equipment. Remove ALL scenery, deck, rail, ship, other characters, dragon, logos and text. Do not include floor or a baked ground shadow; contact shadow will be added in the webpage. Compact portrait canvas tightly containing the full knight with a small transparent safety margin. No white or colored rectangle, no checkerboard drawn into pixels, actual transparent PNG alpha. No new costume or weapon, no pixel art, no photorealism."
+    }
+  ]
+}
