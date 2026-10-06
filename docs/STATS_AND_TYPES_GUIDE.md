@@ -1,6 +1,6 @@
 # BattleLab · Stats & Type Guide
 
-**A quick reference for choosing your team and understanding damage.**  
+**A quick reference for choosing your team and understanding damage.**
 Current rules · 6 October 2026 · Numbers are provisional playtest values.
 
 ## 1. The three types
@@ -63,7 +63,7 @@ starting maximum HP and permanent stats; temporary effects are separate.
 
 ## 4. Damage, step by step
 
-**Physical:** move power × your Power ÷ enemy Armour.  
+**Physical:** move power × your Power ÷ enemy Armour.
 **Magic / Spirit:** move power × your Focus ÷ enemy Ward.
 
 Round down to get **base damage**. A damaging move starts with at least one base damage.
