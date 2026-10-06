@@ -96,6 +96,14 @@ function render() {
   });
   $('log').replaceChildren(...state.log.map(message=>{const li=document.createElement('li');li.textContent=message;return li;}));
   $('log').scrollTop=$('log').scrollHeight;
+  const result=$('result-dialog');
+  if(result && state.winner!==null && !busy && !disconnected){
+    $('result-title').textContent=state.winner===0?'Victory':'Defeat';
+    $('result-copy').textContent=state.winner===0?'Your team takes the arena.':'The bot takes this battle. Your next move awaits.';
+    $('result-team').textContent=state.teams[state.winner].map(c=>c.name).join(' · ');
+    if(!result.open)result.showModal();
+  }
+
 }
 function preview(index) {
   const c=current(), move=c.moves[index];
@@ -103,10 +111,8 @@ function preview(index) {
   const label=move.effect==='heal'?'RECOVERY':move.effect==='guard'?'GUARD':'ATTACK';
   const value=move.effect==='guard'?`${move.amount}%`:move.effect==='damage'?(move.baseDamage??move.amount):move.amount;
   const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':'base damage';
-  const matchup=move.effectiveness===125?'Strong matchup':move.effectiveness===80?'Resisted matchup':'Neutral matchup';
-  const outcome=move.effect==='damage'?`<p class="move-outcome">${move.damageType} · ${matchup}</p>`:'';
-  const warning=confusedMove(c,index)?'<p class="confusion-warning">Confusion: this move causes 8 recoil.</p>':'';
-  $('details').innerHTML=`<div class="detail-kicker">${label}</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${value}<small>${unit}</small></div>${outcome}${warning}`;
+  const brief=(move.description??'').split('. ').find(t=>!t.includes(' / ')&&!t.includes('Scales with'))??'';
+  $('details').innerHTML=`<div class="detail-kicker">${escapeText(move.damageType??label)}</div><h3>${escapeText(move.name)}</h3><div class="damage">${value}<small>${unit}</small></div><p>${escapeText(brief.slice(0,100))}${brief.length>100?'…':''}</p>${confusedMove(c,index)?'<small>Confused · 8 recoil</small>':''}`;
 }
 function hideDetails() {
   clearTimeout(detailTimer); document.querySelector('.detail-panel').classList.remove('is-visible');
@@ -142,6 +148,8 @@ async function sendAction(kind,index) {
     for (let i=0;i<data.frames.length;i++) {
       const frame=data.frames[i];
       state=frame;render();
+      if(frame.animation && typeof document.createElement==='function') playMoveEffect(frame.animation,null);
+
       if (frame.animation?.moveName) {
         const name=document.createElement('div');name.className='move-announcement';
         name.textContent=`${frame.animation.actor===0?'You':'Opponent'} · ${frame.animation.moveName}`;
@@ -149,7 +157,7 @@ async function sendAction(kind,index) {
       }
       for (const change of frame.animation?.hpChanges??[]) {
         const c=current(change.player),bar=$(`hud-${change.player}`).querySelector('.health span');
-        if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+        if (!document.body?.classList.contains('reduce-motion') && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
           bar?.animate([{width:`${100*(c.hp-change.amount)/c.maxHp}%`},{width:`${100*c.hp/c.maxHp}%`}],{duration:420,easing:'ease-out'});
         }
         const number=document.createElement('span');number.className=`hp-change ${change.amount>0?'recovery':''}`;
@@ -211,10 +219,10 @@ function renderChoices() {
   $('start-battle').disabled=busy || disconnected || selection.length!==3 || selection.some(id=>(loadouts[id]?.length??4)!==4);
   $('start-battle').textContent=busy?'Starting…':`Enter arena · ${selection.length} / 3`;
 }
-function openTeamPicker() {
+function openTeamPicker(fresh=false) {
   if (busy) return;
   $('switch-dialog').close();hideDetails();
-  selection=state?state.teams[0].map(c=>c.id):selection;
+  if(fresh){selection=[];loadouts={};}else selection=state?state.teams[0].map(c=>c.id):selection;
   $('team-cancel').hidden=!state;
   renderChoices();
   if (!$('team-dialog').open) $('team-dialog').showModal();
@@ -249,8 +257,22 @@ async function connect() {
 $('switch-dialog').addEventListener('cancel',e=>{if(state?.replacement===0)e.preventDefault();});
 $('team-dialog').addEventListener('cancel',e=>{if(!state || busy)e.preventDefault();});
 $('team-cancel').onclick=()=>{if(!busy){$('team-dialog').close();if(state?.replacement===0)openSwitch();}};
-$('restart').onclick=openTeamPicker;
+$('restart').onclick=()=>{if(!busy)$('settings-dialog').showModal();};
 $('start-battle').onclick=startBattle;$('retry').onclick=connect;$('team-retry').onclick=connect;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')hideDetails();});
 window.addEventListener('resize',hideDetails);
 connect();
+
+function playMoveEffect(animation,move){
+  const arena=document.querySelector('.arena'),source=$(`fighter-${animation.actor}`),target=$(`fighter-${animation.target??animation.actor}`);
+  if(!arena || !source?.getBoundingClientRect || !target?.getBoundingClientRect)return;
+  const name=animation.moveName??move?.name??`${current(animation.actor).name} ${animation.kind}`;
+  const seed=[...name].reduce((n,c)=>n+c.charCodeAt(0),0);
+  const family=animation.kind==='heal'?'heal':/Spore|Fungal/.test(name)?'spore':/Spark|Static|Voltage|Coil|Current/.test(name)?'spark':/Strike|Slash|Fang|Jab|Kick|Fist|Bash|Volley|Shot|Arrow/.test(name)?'slash':/Ward|Shell|Coat|Screen|Snare/.test(name)?'shield':'spell';
+  const a=source.getBoundingClientRect(),b=target.getBoundingClientRect(),r=arena.getBoundingClientRect();
+  const effect=document.createElement('div');effect.className=`move-fx fx-${family}`;effect.setAttribute('aria-hidden','true');
+  effect.style.cssText=`--hue:${seed%360};--spin:${seed%120-60}deg;left:${a.left+a.width/2-r.left}px;top:${a.top+a.height/2-r.top}px;--dx:${b.left+b.width/2-a.left-a.width/2}px;--dy:${b.top+b.height/2-a.top-a.height/2}px;--duration:${350+seed%100}ms`;
+  for(let i=0;i<5+seed%5;i++){const particle=document.createElement('i');particle.style.setProperty('--i',i);effect.append(particle);}
+  arena.append(effect);arena.classList.add('impact-light');setTimeout(()=>{effect.remove();arena.classList.remove('impact-light');},460);
+}
+if($('result-replay'))$('result-replay').onclick=()=>{$('result-dialog').close();openTeamPicker(true);};

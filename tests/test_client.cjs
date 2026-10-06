@@ -93,3 +93,28 @@ test('move details distinguish healing and guarding from attacks', async () => {
   vm.runInContext('preview(2)',context);
   assert.match(get('details').innerHTML,/GUARD[\s\S]*50%[\s\S]*next hit/);
 });
+
+
+test('result screen names the winner and waits for final animations', async () => {
+  const nodes=new Map();
+  const get=id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};
+  const c={id:'mage',name:'Mage',type:'Magic',hp:100,maxHp:100,moves:[]};
+  const state={teams:[[c],[c]],active:[0,0],player:0,replacement:null,winner:null,turn:1,revision:0,actions:[],log:[]};
+  const replies=[[],{state}];
+  const context=vm.createContext({document:{getElementById:get,querySelector:get,querySelectorAll:()=>[],createElement:element,addEventListener(){}},window:{addEventListener(){}},setTimeout,clearTimeout,AbortSignal,fetch:async()=>({ok:true,json:async()=>replies.shift()})});
+  vm.runInContext(readFileSync(new URL('../frontend/script.js',`file://${__filename}`),'utf8'),context);
+  await new Promise(setImmediate);
+  vm.runInContext('state.winner=0;busy=true;render()',context);
+  assert.equal(get('result-dialog').open,false);
+  vm.runInContext('busy=false;render()',context);
+  assert.equal(get('result-dialog').open,true);
+  assert.equal(get('result-title').textContent,'Victory');
+  vm.runInContext('state.winner=1;render()',context);
+  assert.equal(get('result-title').textContent,'Defeat');
+  vm.runInContext('selection=["mage"];loadouts={mage:[0,1,2,3]}',context);
+  get('result-replay').onclick();
+  assert.equal(vm.runInContext('selection.length',context),0);
+  assert.equal(vm.runInContext('Object.keys(loadouts).length',context),0);
+  assert.equal(get('team-dialog').open,true);
+  assert.equal(get('result-dialog').open,false);
+});
