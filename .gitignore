@@ -7,3 +7,4 @@ venv/
 .DS_Store
 node_modules/
 .pytest_cache/
+frontend/assets/homepage/fonts/MIDELTANK-Demo.otf

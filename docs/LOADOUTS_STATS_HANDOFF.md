@@ -29,13 +29,15 @@ attacks by either side; healing and pure protection do not announce move names.
 HP changes are exact net action outcomes including recoil, lifesteal and echo.
 The UI shows signed floating values and animates HP bars; reduced motion is
 respected. Type icons: Magic ✦, Physical ◆, Spirit ◉, with hover/accessibility names.
-Effects are not intentionally hidden, but only applications are logged today.
-Persistent status badges (remaining actions and confused move slot) are pending
-Abijeason's UI integration; guard is the only persistent HUD indicator currently.
+Updated 6 October 2026: both active characters now show persistent status labels
+and remaining holder actions. Open the labels for explanations, including the
+confused move name and blocked-switch reason. Confused move buttons also warn
+about eight recoil. Guard retains its next-hit indicator.
 
 ## Homepage integration and release order
-Merge gameplay PR #22 first. On homepage PR #23, update battle.html to preserve
-#arena-name, #loadout-options and all battle client hooks before merging.
+Gameplay PR #22 is merged. Homepage PR #23 integrates its page as battle.html,
+preserving #arena-name, #loadout-options and the battle client hooks. The root
+index.html remains the homepage; Play now and character links open battle.html.
 Use default builds immediately; the custom-build picker is an optional collapsed
 advanced step. Character stats sit behind a separate disclosure. Playtest default
 builds before expanding mechanics; no statuses have been removed.

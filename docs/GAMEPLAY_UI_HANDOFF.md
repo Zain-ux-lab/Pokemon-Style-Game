@@ -1,8 +1,8 @@
 # Gameplay handoff for Abijeason
 
-Zain owns gameplay; Abijeason owns UI. No frontend files changed in this branch.
-The existing client still renders move arrays, descriptions, turn logs and attack
-animations. Dedicated effect badges/type indicators are the remaining UI work.
+Zain owns gameplay; Abijeason owns UI. Updated 6 October 2026: the homepage integration retains move arrays,
+descriptions, turn logs and attack animations. Persistent effect labels,
+remaining holder actions and confused-move warnings are now displayed.
 
 ## Battle snapshot additions
 - `teams[p][i].statuses`: `{name, turnsRemaining, moveIndex, description}[]`.
@@ -22,12 +22,12 @@ animations. Dedicated effect badges/type indicators are the remaining UI work.
   `appliesStatus` and `description` to damaging status moves.
 - Effect events are readable log entries. HP and legal actions stay server-owned.
 
-## Suggested UI work
-Show small hover/focus effect badges near HP, including remaining actions. Mark
-the confused move and its recoil warning. Show damage type and strong/resisted
-matchups in move details. Present immediate damage, drain recovery, recoil and
-echo separately. Ensure four move pills fit on smaller screens. These are
-integration suggestions, not interface changes included in this branch.
+## UI integration — 6 October 2026
+Effect labels now remain near HP, with remaining holder actions and expandable
+explanations. Confused moves carry a recoil warning. Move details show base
+damage, damage type, strong/resisted matchups and exact immediate damage;
+drain recovery and pending echo are separate figures, and recoil remains in the
+engine's description. Four move pills retain the responsive action rail.
 
 ## Run and test
 Use the project virtual environment. Run `python -m pytest -q`, then

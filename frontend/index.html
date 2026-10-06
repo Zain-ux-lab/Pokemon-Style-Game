@@ -3,41 +3,65 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BattleLab · Colosseum</title>
-  <link rel="stylesheet" href="style.css?v=7">
-  <script src="script.js?v=7" defer></script>
+  <meta name="theme-color" content="#18365a">
+  <meta name="description" content="Choose three fighters. Outsmart the bot. BattleLab is a turn-based fantasy battle game.">
+  <title>BattleLab — Choose your next move</title>
+  <link rel="preload" href="assets/homepage/fonts/Cinzel-Variable.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/homepage/fonts/Barlow-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/homepage/skyship/skyship.png" as="image">
+  <link rel="stylesheet" href="homepage.css?v=skyship8">
+  <script src="audio.js?v=skyship8" defer></script>
+  <script src="homepage.js?v=skyship8" defer></script>
 </head>
-<body>
-  <main class="shell">
-    <header class="topbar"><a class="brand" href="./index.html">B<span class="brand-star">✦</span>TTLELAB</a><div class="location"><strong id="arena-name">BATTLE ARENA</strong> <span>Friendly battle</span></div><button id="restart" class="quiet">New battle ↻</button></header>
-    <div class="demo-note"><span class="dot"></span> PLAY THE BOT <span>Ten characters · four moves each</span></div>
-    <section class="arena" aria-label="Colosseum battlefield">
-      <div class="fighter-hud left" id="hud-0"></div><div class="fighter-hud right" id="hud-1"></div>
-      <div class="turn-badge" id="turn" role="status"></div>
-      <aside class="enemy-team" aria-label="Opponent team"><p class="eyebrow">OPPONENT’S TEAM</p><div id="enemy-roster" class="roster"></div></aside>
-      <div class="fighter left" id="fighter-0"></div><div class="fighter right" id="fighter-1"></div>
-      <div class="arena-caption">SOLO BATTLE</div>
+<body class="homepage">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="BattleLab home"><img class="brand-emblem" src="assets/homepage/battlelab-emblem.svg" width="34" height="48" alt=""><span class="brand-type">BattleLab</span></a>
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="#home" aria-current="page">Home</a>
+      <a href="characters.html">Characters</a>
+      <a href="#arenas">Arenas</a>
+      <a href="#how-to-play">How to play</a>
+    </nav>
+    <div class="header-actions">
+      <button class="sound-toggle icon-button" id="sound-toggle" type="button" aria-pressed="false" aria-label="Turn sound on" title="Toggle sound">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path class="sound-waves" d="M16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-slash" d="m16 9 6 6m0-6-6 6"/></svg><span class="visually-hidden">Sound off</span>
+      </button>
+      <button class="motion-toggle icon-button" id="motion-toggle" type="button" aria-pressed="false" aria-label="Pause scene animation" title="Pause animation"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pause-icon" d="M7 5h3v14H7zm7 0h3v14h-3z"/><path class="play-icon" d="m8 5 11 7-11 7z"/></svg></button>
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span></button>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden><a href="#home">Home</a><a href="characters.html">Characters</a><a href="#arenas">Arenas</a><a href="#how-to-play">How to play</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="hero-backdrop" aria-hidden="true"></div><div class="sky-drift scene-motion" aria-hidden="true"></div><div class="cloud-wisp cloud-one scene-motion" aria-hidden="true"></div><div class="cloud-wisp cloud-two scene-motion" aria-hidden="true"></div><div class="hero-shade" aria-hidden="true"></div>
+      <div class="hero-dragon scene-motion"><img class="dragon-portrait" src="assets/homepage/skyship/vesperfang-sunlit-approach.png" width="1672" height="941" alt="Vesperfang flies toward Bastion, its lavender wings and scales catching the sunlight." fetchpriority="high"></div>
+      <div class="hero-bastion" role="img" aria-label="Bastion stands on the skyship deck, shield ready and sword raised toward Vesperfang."><div class="bastion-ground"></div><div class="bastion-idle scene-motion"><img src="assets/homepage/skyship/bastion-ready.png" width="1225" height="1284" alt="" fetchpriority="high"><div class="blade-shine scene-motion"></div><i class="armour-glint glint-helmet scene-motion"></i><i class="armour-glint glint-shield scene-motion"></i><i class="armour-glint glint-hilt scene-motion"></i></div></div>
+      <div class="hero-copy"><h1 id="hero-title">BattleLab</h1><p>Choose three fighters.<br class="mobile-break"> Outsmart the bot.</p><div class="hero-buttons"><a class="gold-button" href="battle.html" data-play><span>Play now</span><svg viewBox="0 0 20 24" aria-hidden="true"><path d="m5 3 10 9-10 9V3Z"/></svg></a><a class="gameplay-link" href="#gameplay">See gameplay <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3 5 5-5 5"/></svg></a></div></div>
+      <a class="discover" href="#gameplay"><span class="discover-line"></span><span>Scroll to explore</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg></a>
     </section>
-    <section class="console" aria-label="Battle controls">
-      <div class="team-panel"><p class="eyebrow" id="team-label">YOUR TEAM</p><div id="roster" class="roster"></div><p class="team-hint">Select a reserve to switch.</p></div>
-      <div class="actions-panel"><div class="section-title"><p class="eyebrow" id="action-label">CHOOSE YOUR MOVE</p><span id="turn-count"></span></div><div id="moves" class="moves"></div></div>
-      <aside class="detail-panel" aria-label="Move details"><div id="details"></div></aside>
+    <section class="gameplay-section section-wrap" id="gameplay" aria-labelledby="gameplay-title">
+      <div class="gameplay-copy"><h2 id="gameplay-title">Every turn<br>matters.</h2><p>Strike, heal, guard or switch. Build your team around the next move, then let the bot make its reply.</p><a class="text-link" href="#how-to-play">Learn the basics <span aria-hidden="true">›</span></a></div>
+      <div class="gameplay-preview">
+        <div class="demo-stage" id="demo-stage">
+          <img class="demo-background" src="assets/homepage/arenas/01-colosseum.png" alt="" loading="lazy">
+          <div class="demo-ground ground-mage" aria-hidden="true"></div><div class="demo-ground ground-coil" aria-hidden="true"></div>
+          <div class="demo-hud hud-player"><span>Mage</span><div class="hp-track"><span id="demo-hp-mage"></span></div></div>
+          <div class="demo-hud hud-bot"><span>Coil</span><div class="hp-track"><span id="demo-hp-coil"></span></div></div>
+          <img class="demo-mage" src="assets/homepage/characters/mage.png" alt="Mage" loading="lazy">
+          <img class="demo-coil" src="assets/homepage/characters/coil.png" alt="Coil" loading="lazy">
+          <div class="demo-projectile bolt-mage" aria-hidden="true"></div><div class="demo-projectile bolt-coil" aria-hidden="true"></div>
+          <button class="demo-play" id="demo-play" type="button" aria-label="Play illustrated combat preview"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg></button>
+          <p class="demo-caption" id="demo-caption" aria-live="polite"></p>
+        </div>
+        <div class="demo-meta"><span>Illustrated combat preview · Mage vs Coil</span><button class="text-link" id="demo-replay" type="button" hidden>Play again <span aria-hidden="true">↺</span></button></div>
+      </div>
     </section>
-    <div class="history"><span class="eyebrow">BATTLE LOG</span><ol id="log" aria-live="polite" aria-relevant="additions"></ol></div>
-    <footer><span>MAGIC <b>›</b> PHYSICAL <b>›</b> SPIRIT <b>›</b> MAGIC</span><span>Hover or focus a move to inspect</span></footer>
-    <div class="connection-notice"><p data-error role="alert" hidden></p><button id="retry" class="quiet" hidden>Retry connection</button></div>
+    <section class="arenas-section section-wrap" id="arenas" aria-labelledby="arenas-title"><div class="section-heading"><div><h2 id="arenas-title">A world worth<br>fighting for.</h2><p>Eight places. One great rivalry.</p></div><span class="arena-count" id="arena-count" aria-live="polite">1 / 8</span></div><div class="arena-view"><img id="arena-image" src="assets/homepage/arenas/01-colosseum.png" alt="Sunstone Colosseum, a sandstone arena with an open sandy floor" loading="lazy"><div class="arena-description"><h3 id="arena-name">Sunstone Colosseum</h3><p id="arena-description">Golden sandstone, red banners and a sunlit fighting floor.</p></div><div class="arena-controls"><button id="arena-prev" type="button" aria-label="Previous arena"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button><button id="arena-next" type="button" aria-label="Next arena"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button></div></div><p class="gallery-note">Each new battle draws one of these eight arenas. Your arena stays the same when you refresh.</p></section>
+    <section class="how-section section-wrap" id="how-to-play" aria-labelledby="how-title"><h2 id="how-title">Your first battle.</h2><ol class="how-steps"><li><span class="step-number" aria-hidden="true">1</span><div><h3>Choose your three.</h3><p>Your first pick leads. Start with a ready-made build or customise four moves. The bot chooses three different fighters from the rest.</p></div></li><li><span class="step-number" aria-hidden="true">2</span><div><h3>Make your move.</h3><p>Take turns attacking, healing, guarding or switching. Read the move preview before you act.</p></div></li><li><span class="step-number" aria-hidden="true">3</span><div><h3>Be the last team standing.</h3><p>Replace a fallen fighter for free. Defeat all three opponents to win.</p></div></li></ol><a class="gold-button" href="battle.html" data-play><span>Play now</span><svg viewBox="0 0 20 24" aria-hidden="true"><path d="m5 3 10 9-10 9V3Z"/></svg></a></section>
   </main>
-  <dialog id="switch-dialog"><form method="dialog"><button class="close" aria-label="Close">×</button></form><p class="eyebrow" id="switch-label">CHANGE THE MATCHUP</p><h2 id="switch-title">Choose your next character</h2><p id="switch-description"></p><div id="switch-options"></div></dialog>
-  <dialog id="team-dialog" aria-labelledby="team-title">
-    <button id="team-cancel" class="close" aria-label="Return to battle" hidden>×</button>
-    <p class="eyebrow">CHOOSE YOUR TEAM · SOLO BATTLE</p>
-    <h2 id="team-title">Choose your three.</h2>
-    <p>Your first pick leads. The bot draws three different characters after you lock in.</p>
-    <div id="team-options" class="team-options"></div><details id="custom-builds"><summary>Customise moves · optional</summary><p>Default builds are ready to play. Keep both signatures and choose two other moves.</p><div id="loadout-options"></div></details>
-    <p class="prototype-note">Four moves per character. Use type matchups, signature abilities and switching to outplay the bot.</p>
-    <p data-error role="alert" hidden></p>
-    <button id="team-retry" class="quiet" hidden>Retry connection</button>
-    <button id="start-battle" class="start-battle" disabled>Enter arena · 0 / 3</button>
-  </dialog>
+  <footer class="site-footer section-wrap"><a class="wordmark" href="#home"><img class="brand-emblem" src="assets/homepage/battlelab-emblem.svg" width="28" height="40" alt=""><span class="brand-type">BattleLab</span></a><p>Choose your next move.</p><div><a href="characters.html">Characters</a><a href="#how-to-play">How to play</a><a href="https://github.com/Zain-ux-lab/Pokemon-Style-Game" target="_blank" rel="noopener noreferrer">Our project</a></div></footer>
+  <details class="audio-panel"><summary>Audio settings</summary><div><label for="music-volume">Music <output id="music-value">25%</output></label><input id="music-volume" type="range" min="0" max="100" value="25"><label for="effects-volume">Click sounds <output id="effects-value">40%</output></label><input id="effects-volume" type="range" min="0" max="100" value="40"><p id="audio-status" role="status">Enable sound in the navigation to listen.</p></div></details>
+  <audio id="theme-music" src="assets/homepage/audio/embers-before-battle.m4a" loop preload="none"></audio>
 </body>
 </html>

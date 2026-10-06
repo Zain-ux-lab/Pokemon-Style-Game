@@ -1,4 +1,4 @@
-# Play against the tactical bot
+# BattleLab homepage and bot battles
 
 Start the Python app from the repository root and open http://127.0.0.1:8000/:
 
@@ -11,6 +11,46 @@ python -m uvicorn backend.main:app
 
 The Python app serves both the screen and the battle API. Opening `index.html`
 directly or using the old static server on port 8080 will not run battles.
+
+The root URL opens the homepage. Select **Play now** to open the existing
+team-selection and battle screen at `/battle.html`. The separate character page
+is at `/characters.html`; its links also enter the same game.
+
+## Homepage
+
+Updated 6 October 2026. This skyship redesign is ready for team review.
+
+- The hero features Bastion in a ready stance on the skyship deck and Vesperfang
+  approaching through the bright sky. The hero features only this pair; all ten fighters have
+  introductions on the separate Characters page.
+- Vesperfang uses a large, crisp, sweeping flight silhouette with sunlit lavender scales, a lowered head and reaching claws. It approaches Bastion from above with space around the raised sword. Homepage text uses restrained shadows for contrast.
+- Vesperfang uses a new, lighter lavender-and-slate flight pose, aimed toward
+  Bastion. It holds that pose and gently hovers. A mouse hover adds
+  a soft violet glow. The scene also adds sky drift, Bastion breathing,
+  sword light and armour glints. The navigation
+  includes a pause control. Reduced motion disables decorative animation;
+  motion also pauses when the hero is off screen or the tab is hidden.
+- Cinzel is the display font and Barlow is the reading font. Both are bundled
+  under the SIL Open Font License, with their copyright notices and licences.
+  The original gold B emblem matches the blue-and-gold scene. The personal-use
+  MIDELTANK demo from the local mockup is not distributed or referenced.
+- The blue **Play now** button with gold trim opens the existing battle
+  screen. Navigation and buttons have hover glow and keyboard focus styles.
+- Enable sound in the navigation for the original instrumental loop and click
+  chimes. Audio settings has separate music and effects levels. Audio requires
+  a user interaction and pauses while the tab is hidden.
+- **Every turn matters** is an illustrated combat preview: Mage uses Arcane
+  Bolt, Coil replies with Spark Bolt, and both health bars respond.
+  It does not send battle actions or create a match.
+- The gallery shows the eight playable arenas, including Sunstone Colosseum and
+  Mistwater Citadel's dry rocky cliff. A new match selects an arena; refresh keeps it.
+- The homepage adapts to portrait and landscape screens. The Characters page
+  retains its existing ten introductions with shared blue-and-gold styling.
+
+The homepage integrates the gameplay merged in PR #22. Play now opens its
+team selection, move builds, ten character sprites and eight arenas. Combat
+rules, bot and API remain server-owned. Asset origins and generation prompts
+are in `assets/homepage/CREDITS.md` and `assets/homepage/prompts.json`.
 
 Leave automatic reload off while playtesting: battles live in server memory,
 and restarting the server ends active battles. Restart manually after backend edits.
@@ -31,20 +71,28 @@ Matches live in memory, expire after 30 minutes without requests, and disappear
 when the server restarts. Run one server worker for this local demo. There are
 no accounts, persistent saves, or online multiplayer.
 
+## Battle UI integration — 6 October 2026
+
+- Choose three characters and enter immediately with default four-move builds.
+  Open **Customise moves** to choose two alternatives alongside the two locked
+  signatures. Detailed stats remain behind an expandable section.
+- Both active characters display effect names and remaining holder actions beside
+  HP. Open the labels for descriptions. Confusion identifies the affected move
+  and warns that it causes eight recoil. Paralysis explains blocked switching.
+- Move details keep base damage as the main figure and also show move type,
+  matchup and direct damage. Healing, recoil and pending echo descriptions come
+  from the engine. Both sides retain move announcements and signed HP feedback.
+- The root page is the animated homepage; battle.html contains the latest game
+  page, including arena-name, loadout-options and the original battle hooks.
+- Battle typography uses the same bundled free Cinzel/Barlow fonts as the homepage.
+
 ## Current limits
 
-Each character has three move choices; a player uses one move per turn.
-Glowmire and Hushwing can heal, while Bramblebelly and Bastion can guard
-against the next hit. The bot considers those effects when choosing a move.
-The ten names use temporary stats and share three placeholder sprites. The
-original three keep their first attack names and HP; new entries reuse prototype stat ranges. Attack and defense are
-both 10 until the engine's character data is integrated. Category labels have
-no damage bonus yet. Charge, resource costs, and final balancing
-remain engine follow-ups; they are not simulated in the browser.
-
-The colosseum background was generated with the built-in image generation tool.
-Fonts use Google Fonts with local sans-serif fallbacks. The geometric SVGs are
-placeholder art and can be replaced with final pixel sprites.
+Balance remains provisional. Six stats scale moves, and type advantages are
+implemented: Magic beats Physical, Physical beats Spirit, Spirit beats Magic.
+Artwork is static with CSS combat animations. No character limb rigging, energy,
+cooldowns, progression, accounts or online multiplayer are included.
+The homepage combat illustration is a scripted example, not a live match.
 
 ## Tests
 
@@ -59,9 +107,7 @@ node --test tests/test_client.cjs
 automatic bot turns, switching, free replacements, full match completion,
 session isolation, and rejection of stale or invalid actions.
 
-## Background generation prompt
+## Artwork records
 
-Clean pixel-style ancient colosseum for a side-on one-on-one creature battle.
-Warm sandstone arches, muted terracotta and teal accents, soft blue sky, and a
-broad quiet sandy floor. Consistent pixel clusters, restrained palette, minimal
-shading. No characters, HUD, text, glow, ornate detail, or foreground obstacles.
+See `assets/homepage/CREDITS.md`, `assets/characters/SOURCE.md`,
+`../docs/CHARACTER_ART.md` and `../docs/ARENA_ART.md` for artwork provenance.

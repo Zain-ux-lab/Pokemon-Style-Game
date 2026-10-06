@@ -9,6 +9,17 @@ let detailTimer;
 const $ = id => document.getElementById(id);
 const TYPES = {Magic:'#6a64a2', Physical:'#9c633b', Spirit:'#3c827c'};
 const TYPE_SYMBOLS = {Magic:'✦',Physical:'◆',Spirit:'◉'};
+const EFFECT_NAMES = {spores:'Spores',thorns:'Thorns',mark:'Marked',paralyse:'Paralysed',confuse:'Confused',weaken:'Weakened',expose:'Exposed',echo:'Spell echo'};
+function escapeText(value) {
+  return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function confusedMove(c, index) { return c.statuses?.some(s=>s.name==='confuse' && s.moveIndex===index); }
+function effectIndicators(c, player) {
+  const statuses=c.statuses??[];
+  if (!statuses.length) return '';
+  const owner=player===0?'your':'the opponent’s';
+  return `<details class="effect-indicators"><summary aria-label="${escapeText(c.name)}: ${statuses.map(s=>`${EFFECT_NAMES[s.name]??s.name}, ${s.turnsRemaining} ${s.turnsRemaining===1?'action':'actions'} remaining`).join('; ')}. Open effect explanations.">${statuses.map(s=>`<span class="effect-badge">${EFFECT_NAMES[s.name]??s.name} <b>${s.turnsRemaining}</b></span>`).join('')}</summary><div class="effect-explanations">${statuses.map(s=>`<p><strong>${EFFECT_NAMES[s.name]??s.name} · ${s.turnsRemaining} of ${owner} ${s.turnsRemaining===1?'actions remains':'actions remain'}</strong>${escapeText(s.description)}${s.name==='confuse' && Number.isInteger(s.moveIndex)?`<em>${escapeText(c.moves[s.moveIndex]?.name??'Marked move')} causes 8 recoil.</em>`:''}</p>`).join('')}${c.switchBlockedReason?`<p>${escapeText(c.switchBlockedReason)}</p>`:''}</div></details>`;
+}
 function typeSymbol(type) { return `<span class="type" title="${type}" aria-label="${type}">${TYPE_SYMBOLS[type]??'◇'}</span>`; }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -35,7 +46,7 @@ function setError(message = '') {
 }
 function current(player = 0) { return state.teams[player][state.active[player]]; }
 function allowed(kind, index) { return !busy && !disconnected && state?.actions.some(a => a.kind === kind && a.index === index); }
-function artwork(c) { return `<img class="sprite" src="assets/characters/${c.id}.png" alt="${c.name}" decoding="async">`; }
+function artwork(c) { return `<img class="sprite" src="assets/characters/${c.id}.png" alt="${c.name}" decoding="sync">`; }
 function portrait(c, index, enemy = false) {
   const player = enemy ? 1 : 0;
   const active = state.active[player] === index;
@@ -57,12 +68,14 @@ function render() {
     arena.style.backgroundImage=`url("${state.arena.image}")`;
     arena.setAttribute('aria-label',`${state.arena.name} battlefield`);
     $('arena-name').textContent=state.arena.name.toUpperCase();
+    $('battle-arena-caption').textContent=state.arena.name;
     document.title=`BattleLab · ${state.arena.name}`;
   }
   for (let p=0; p<2; p++) {
     const c = current(p);
     $(`hud-${p}`).style.setProperty('--type', TYPES[c.type]);
     $(`hud-${p}`).innerHTML = `<div class="side-label">${p===0?'YOU':'OPPONENT'} <span>${p===0?'PLAYER':'TACTICAL BOT'}</span></div><div class="hud-top"><strong>${c.name}</strong><span class="type" title="${c.type}" aria-label="${c.type}">${TYPE_SYMBOLS[c.type]}</span></div><div class="health" role="meter" aria-label="${p===0?'Your':'Opponent'} health" aria-valuemin="0" aria-valuemax="${c.maxHp}" aria-valuenow="${c.hp}"><span style="width:${100*c.hp/c.maxHp}%"></span></div><div class="hp">${c.hp} / ${c.maxHp} HP</div>${c.guardPercent?`<div class="guard-state">◈ NEXT HIT −${c.guardPercent}%</div>`:''}`;
+    $(`hud-${p}`).innerHTML += effectIndicators(c,p);
     $(`fighter-${p}`).innerHTML = artwork(c);
     $(`fighter-${p}`).classList.toggle('fainted', c.hp===0);
   }
@@ -74,7 +87,7 @@ function render() {
   $('turn').textContent = state.winner!==null ? (state.winner===0?'YOU WIN':'BOT WINS') : disconnected ? 'CONNECTION LOST' : state.replacement===0 ? 'CHOOSE A REPLACEMENT' : state.player===1 ? 'BOT IS CHOOSING…' : busy ? 'RESOLVING TURN…' : 'YOUR TURN';
   $('action-label').textContent = state.winner!==null ? 'MATCH COMPLETE' : state.replacement===0 ? 'DEPLOY A RESERVE' : 'CHOOSE YOUR MOVE';
   const c = current();
-  $('moves').innerHTML = c.moves.map((m,i)=>`<button class="move" style="--type:${TYPES[c.type]}" ${allowed('move',i)?'':'disabled'} data-move="${i}"><span class="move-symbol">${m.symbol}</span>${m.name}</button>`).join('');
+  $('moves').innerHTML = c.moves.map((m,i)=>`<button class="move ${confusedMove(c,i)?'confused-move':''}" style="--type:${TYPES[c.type]}" ${allowed('move',i)?'':'disabled'} data-move="${i}" ${confusedMove(c,i)?`aria-label="${escapeText(m.name)}, confused: causes 8 recoil"`:''}><span class="move-symbol">${m.symbol}</span>${m.name}${confusedMove(c,i)?'<small class="move-warning">Confused · 8 recoil</small>':''}</button>`).join('');
   $('moves').querySelectorAll('button').forEach(button=>{
     const index=Number(button.dataset.move);
     button.onclick=()=>sendAction('move',index);
@@ -90,7 +103,10 @@ function preview(index) {
   const label=move.effect==='heal'?'RECOVERY':move.effect==='guard'?'GUARD':'ATTACK';
   const value=move.effect==='guard'?`${move.amount}%`:move.effect==='damage'?(move.baseDamage??move.amount):move.amount;
   const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':'base damage';
-  $('details').innerHTML=`<div class="detail-kicker">${label}</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${value}<small>${unit}</small></div>`;
+  const matchup=move.effectiveness===125?'Strong matchup':move.effectiveness===80?'Resisted matchup':'Neutral matchup';
+  const outcome=move.effect==='damage'?`<p class="move-outcome">${move.damageType} · ${matchup}</p>`:'';
+  const warning=confusedMove(c,index)?'<p class="confusion-warning">Confusion: this move causes 8 recoil.</p>':'';
+  $('details').innerHTML=`<div class="detail-kicker">${label}</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${value}<small>${unit}</small></div>${outcome}${warning}`;
 }
 function hideDetails() {
   clearTimeout(detailTimer); document.querySelector('.detail-panel').classList.remove('is-visible');
@@ -102,8 +118,8 @@ function showDetails(index,button) {
   clearTimeout(detailTimer); preview(index);
   const panel=document.querySelector('.detail-panel');panel.classList.add('is-visible');button.setAttribute('aria-describedby','details');
   const r=button.getBoundingClientRect(),size=panel.offsetWidth;
-  panel.style.left=Math.max(8,r.left-size-14)+'px';
-  panel.style.top=Math.max(8,Math.min(innerHeight-size-8,r.top+r.height/2-size/2))+'px';
+  panel.style.left=Math.max(8,Math.min(innerWidth-size-8,r.left-size-14))+'px';
+  panel.style.top=Math.max(8,Math.min(innerHeight-panel.offsetHeight-8,r.top+r.height/2-panel.offsetHeight/2))+'px';
 }
 function openSwitch(preferred) {
   if (!state || busy || disconnected || state.winner!==null) return;
@@ -172,7 +188,7 @@ function renderChoices() {
   $('team-options').innerHTML=catalog.map(c=>{
     const rank=selection.indexOf(c.id);
     const featured=c.moves.find(m=>m.effect)||c.moves[0];
-    const strength=featured.effect?`${featured.effect} ${featured.effect_amount}${featured.effect==='guard'?'%':' HP'}`:`${featured.power} power`;
+    const strength=featured.effect==='guard'?`${featured.power} power · ${featured.effect_amount}% guard`:featured.effect==='heal'?`heal ${featured.effect_amount} HP`:`${featured.power} power`;
     return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${typeSymbol(c.type)} · ${c.maxHp} HP</small><small>${featured.name} · ${strength}</small></button>`;
   }).join('');
   $('team-options').querySelectorAll('button').forEach(button=>button.onclick=()=>{

@@ -11,7 +11,8 @@ and use type matchups and signature abilities to win.
 
 We review each other's changes through pull requests and share responsibility
 for integration and understanding the code. AI assists development; changes
-are tested and reviewed. Menu/settings/music work is in progress.
+are tested and reviewed. The animated homepage, character introductions and
+homepage sound controls are included; further interface polish remains in progress.
 
 ## Playable features
 
@@ -33,7 +34,9 @@ are tested and reviewed. Menu/settings/music work is in progress.
 - Move details show base damage. Attack announcements and floating HP changes
   show outcomes; type symbols have accessible names and hover labels.
 
-Effect applications are logged; persistent status badges are pending Abijeason's UI integration. Effects are not intentionally hidden. Hidden buffs, crit randomness, progression and online
+Effect applications are logged. Both active characters show status labels and
+remaining actions beside HP; opening them explains each effect. Confused moves
+show a recoil warning. Hidden buffs, crit randomness, progression and online
 multiplayer are not implemented. Artwork is static with CSS combat animations.
 Balance is provisional and needs human playtesting.
 
@@ -48,7 +51,9 @@ python -m pip install -r requirements.txt
 python -m uvicorn backend.main:app
 ```
 
-Open http://127.0.0.1:8000/ and keep the terminal running. Control+C stops it.
+Open http://127.0.0.1:8000/ and select **Play now** to enter the battle screen.
+Character introductions are at `/characters.html`. Keep the terminal running;
+Control+C stops it.
 Do not enable automatic reload while playing: battles live in one server process
 and disappear on restart. Sessions expire after 30 minutes of inactivity.
 Use one worker. Accounts, persistent saves and a shared production store are
