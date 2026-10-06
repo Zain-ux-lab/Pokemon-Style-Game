@@ -17,8 +17,8 @@ The ten transparent character illustrations and eight arena backgrounds were
 created with built-in image generation for the project's Issue #20 artwork.
 Hushwing is a group of five spirit bats; Mistwater Citadel has a dry rocky
 cliff above the water. The original generated Sunstone Colosseum is used in
-the gallery and illustrative combat preview. These concepts do not replace
-the playable battle's placeholder sprites or scenery.
+the gallery and illustrative combat preview. The playable battle now uses the same ten character designs and eight arenas
+from its shared character and arena asset directories.
 
 Generation records: `prompts.json`, `skyship/prompts.json`, and
 `skyship/vesperfang-sunlit-approach-prompts.json`. Discarded local variants

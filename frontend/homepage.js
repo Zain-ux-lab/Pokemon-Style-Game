@@ -91,8 +91,8 @@
     }, 700);
     schedule(() => {
       stage.classList.remove('is-attacking'); stage.classList.add('is-hit');
-      byId('demo-hp-coil').style.width = '78%';
-      byId('demo-caption').textContent = '22 damage. The bot takes its turn.';
+      byId('demo-hp-coil').style.width = '74%';
+      byId('demo-caption').textContent = '26 damage. The bot takes its turn.';
     }, 1550);
     schedule(() => stage.classList.remove('is-hit'), 2050);
     schedule(() => {
@@ -101,8 +101,8 @@
     }, 2800);
     schedule(() => {
       stage.classList.remove('is-countering'); stage.classList.add('is-counter-hit');
-      byId('demo-hp-mage').style.width = '78%';
-      byId('demo-caption').textContent = '22 damage. Your turn again.';
+      byId('demo-hp-mage').style.width = '75%';
+      byId('demo-caption').textContent = '25 damage. Your turn again.';
     }, 3650);
     schedule(() => stage.classList.remove('is-counter-hit'), 4150);
     schedule(() => {

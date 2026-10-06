@@ -26,8 +26,8 @@ def test_roster_selection_and_opponent_are_disjoint():
         roster = client.get('/api/roster')
         assert roster.status_code == 200
         assert len(roster.json()) == 10
-        assert all(len(character['moves']) == 3 for character in roster.json())
-        assert all(len({move['name'] for move in character['moves']}) == 3 for character in roster.json())
+        assert all(len(character['moves']) == 4 for character in roster.json())
+        assert all(len({move['name'] for move in character['moves']}) == 4 for character in roster.json())
         state = start(client)
         assert [c['id'] for c in state['teams'][0]] == PICKS
         enemies = [c['id'] for c in state['teams'][1]]
@@ -41,11 +41,11 @@ def test_special_moves_are_described_by_the_roster_and_battle_state():
     with TestClient(app) as client:
         roster = {character['id']: character for character in client.get('/api/roster').json()}
         assert roster['glowmire']['moves'][2]['effect'] == 'heal'
-        assert roster['glowmire']['moves'][2]['effect_amount'] == 25
-        assert roster['hushwing']['moves'][1]['effect_amount'] == 20
+        assert roster['glowmire']['moves'][2]['effect_amount'] == 12
+        assert roster['hushwing']['moves'][1]['effect_amount'] == 10
         assert roster['bramblebelly']['moves'][1]['effect'] == 'guard'
-        assert roster['bastion']['moves'][0]['effect_amount'] == 50
-        assert all(len(character['moves']) == 3 for character in roster.values())
+        assert roster['bastion']['moves'][0]['effect_amount'] == 30
+        assert all(len(character['moves']) == 4 for character in roster.values())
 
         state = start(client)
         moves = state['teams'][0][2]['moves']
@@ -62,15 +62,15 @@ def test_healing_restores_only_missing_hp_and_spends_one_action():
         state = attack.json()['state']
         missing_hp = state['teams'][0][0]['maxHp'] - state['teams'][0][0]['hp']
         assert missing_hp > 0
-        assert state['teams'][0][0]['moves'][2]['amount'] == min(25, missing_hp)
+        assert state['teams'][0][0]['moves'][2]['amount'] == min(12, missing_hp)
 
         response = client.post('/api/battle/actions', json={'kind': 'move', 'index': 2, 'revision': state['revision']})
         assert response.status_code == 200
         frame = response.json()['frames'][0]
-        assert frame['teams'][0][0]['hp'] - state['teams'][0][0]['hp'] == min(25, missing_hp)
+        assert frame['teams'][0][0]['hp'] - state['teams'][0][0]['hp'] == min(12, missing_hp)
         assert frame['teams'][1][0]['hp'] == state['teams'][1][0]['hp']
-        assert frame['animation'] == {'kind': 'heal', 'actor': 0}
-        assert 'restored' in frame['log'][-1]
+        assert frame['animation']['kind']=='heal' and frame['animation']['actor']==0
+        assert 'recovered' in frame['log'][-1]
         assert frame['player'] == 1
         assert frame['turn'] == state['turn'] + 1
 
@@ -82,11 +82,12 @@ def test_guard_protects_against_the_next_bot_attack():
         assert response.status_code == 200
         result = response.json()
         guarded = result['frames'][0]
-        assert guarded['teams'][0][0]['guardPercent'] == 50
-        assert guarded['teams'][1][0]['hp'] == state['teams'][1][0]['hp']
-        assert guarded['animation'] == {'kind': 'guard', 'actor': 0}
-        assert guarded['teams'][1][0]['moves'][0]['amount'] == state['teams'][1][0]['moves'][0]['amount'] // 2
-        assert 'next hit reduced by 50%' in guarded['log'][-1]
+        assert guarded['teams'][0][0]['guardPercent'] == 30
+        preview=state['teams'][0][0]['moves'][1]
+        assert guarded['teams'][1][0]['hp'] == state['teams'][1][0]['hp']-preview['amount']
+        assert {k:guarded['animation'][k] for k in ('kind','actor','target')} == {'kind':'attack','actor':0,'target':1}
+        assert guarded['teams'][1][0]['moves'][0]['amount'] == state['teams'][1][0]['moves'][0]['amount'] * 70 // 100
+        assert 'guards the next hit by 30%' in guarded['log'][-1]
 
 
 def test_action_runs_bot_and_rejects_duplicate_submission():
@@ -102,7 +103,7 @@ def test_action_runs_bot_and_rejects_duplicate_submission():
         target_before = state['teams'][1][0]['hp']
         target_after = result['frames'][0]['teams'][1][0]['hp']
         assert target_before - target_after == state['teams'][0][0]['moves'][2]['amount']
-        assert result['frames'][0]['animation'] == {'kind': 'attack', 'actor': 0, 'target': 1}
+        assert {k:result['frames'][0]['animation'][k] for k in ('kind','actor','target')} == {'kind':'attack','actor':0,'target':1}
         assert result['frames'][1]['animation']['kind'] == 'attack'
         assert result['frames'][1]['animation']['actor'] == 1
         assert client.post('/api/battle/actions', json=action).status_code == 409

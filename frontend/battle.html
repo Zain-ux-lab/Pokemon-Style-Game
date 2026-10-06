@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BattleLab · Colosseum</title>
-  <link rel="stylesheet" href="style.css?v=4">
-  <script src="script.js?v=4" defer></script>
+  <title>BattleLab · Play the bot</title>
+  <link rel="stylesheet" href="style.css?v=8">
+  <script src="script.js?v=8" defer></script>
 </head>
 <body>
   <main class="shell">
-    <header class="topbar"><a class="brand" href="./index.html">B<span class="brand-star">✦</span>TTLELAB</a><div class="location">THE COLOSSEUM <span>Friendly battle</span></div><button id="restart" class="quiet">New battle ↻</button></header>
-    <div class="demo-note"><span class="dot"></span> PLAY THE BOT <span>Basic attacks · prototype stats & artwork</span></div>
+    <header class="topbar"><a class="brand" href="./index.html">B<span class="brand-star">✦</span>TTLELAB</a><div class="location"><strong id="arena-name">BATTLE ARENA</strong> <span>Friendly battle</span></div><button id="restart" class="quiet">New battle ↻</button></header>
+    <div class="demo-note"><span class="dot"></span> PLAY THE BOT <span>Ten characters · four moves each</span></div>
     <section class="arena" aria-label="Colosseum battlefield">
       <div class="fighter-hud left" id="hud-0"></div><div class="fighter-hud right" id="hud-1"></div>
       <div class="turn-badge" id="turn" role="status"></div>
       <aside class="enemy-team" aria-label="Opponent team"><p class="eyebrow">OPPONENT’S TEAM</p><div id="enemy-roster" class="roster"></div></aside>
       <div class="fighter left" id="fighter-0"></div><div class="fighter right" id="fighter-1"></div>
-      <div class="arena-caption">COLOSSEUM <span>01 / SUNNY</span></div>
+      <div class="arena-caption" id="battle-arena-caption">SOLO BATTLE</div>
     </section>
     <section class="console" aria-label="Battle controls">
       <div class="team-panel"><p class="eyebrow" id="team-label">YOUR TEAM</p><div id="roster" class="roster"></div><p class="team-hint">Select a reserve to switch.</p></div>
@@ -30,11 +30,11 @@
   <dialog id="switch-dialog"><form method="dialog"><button class="close" aria-label="Close">×</button></form><p class="eyebrow" id="switch-label">CHANGE THE MATCHUP</p><h2 id="switch-title">Choose your next character</h2><p id="switch-description"></p><div id="switch-options"></div></dialog>
   <dialog id="team-dialog" aria-labelledby="team-title">
     <button id="team-cancel" class="close" aria-label="Return to battle" hidden>×</button>
-    <p class="eyebrow">THE COLOSSEUM · SOLO BATTLE</p>
+    <p class="eyebrow">CHOOSE YOUR TEAM · SOLO BATTLE</p>
     <h2 id="team-title">Choose your three.</h2>
     <p>Your first pick leads. The bot draws three different characters after you lock in.</p>
-    <div id="team-options" class="team-options"></div>
-    <p class="prototype-note">Basic attacks for now. Stats and shared artwork are placeholders; special moves and type bonuses are coming later.</p>
+    <div id="team-options" class="team-options"></div><details id="custom-builds"><summary>Customise moves · optional</summary><p>Default builds are ready to play. Keep both signatures and choose two other moves.</p><div id="loadout-options"></div></details>
+    <p class="prototype-note">Four moves per character. Use type matchups, signature abilities and switching to outplay the bot.</p>
     <p data-error role="alert" hidden></p>
     <button id="team-retry" class="quiet" hidden>Retry connection</button>
     <button id="start-battle" class="start-battle" disabled>Enter arena · 0 / 3</button>
