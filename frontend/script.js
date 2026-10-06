@@ -104,7 +104,7 @@ function preview(index) {
   const value=move.effect==='guard'?`${move.amount}%`:move.effect==='damage'?(move.baseDamage??move.amount):move.amount;
   const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':'base damage';
   const matchup=move.effectiveness===125?'Strong matchup':move.effectiveness===80?'Resisted matchup':'Neutral matchup';
-  const outcome=move.effect==='damage'?`<p class="move-outcome">${move.damageType} · ${matchup}<br>${move.amount} direct damage${move.healing?` · +${move.healing} HP`:''}${move.delayedDamage?` · ${move.delayedDamage} echo damage`:''}</p>`:'';
+  const outcome=move.effect==='damage'?`<p class="move-outcome">${move.damageType} · ${matchup}</p>`:'';
   const warning=confusedMove(c,index)?'<p class="confusion-warning">Confusion: this move causes 8 recoil.</p>':'';
   $('details').innerHTML=`<div class="detail-kicker">${label}</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${value}<small>${unit}</small></div>${outcome}${warning}`;
 }
