@@ -40,4 +40,4 @@ Damage previews add `baseDamage` (before type, conditions, guard or HP capping).
 `amount` retains exact resolved direct damage for API consumers and tests.
 The hover display uses baseDamage and labels it base damage. Guard attacks are
 `effect: damage` with `guardPercent: 30` and have attack animations.
-Soul Siphon recovery is 25%, rounded down, capped at 4 HP.
+Drain recovery is floor(direct HP damage × Recovery / 40), capped at 4 HP and missing HP. Recovery 10 gives 25%; Recovery 9 gives 22.5% before rounding.

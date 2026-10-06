@@ -33,7 +33,7 @@ are tested and reviewed. Menu/settings/music work is in progress.
 - Move details show base damage. Attack announcements and floating HP changes
   show outcomes; type symbols have accessible names and hover labels.
 
-Effects stay visible. Hidden buffs, crit randomness, progression and online
+Effect applications are logged; persistent status badges are pending Abijeason's UI integration. Effects are not intentionally hidden. Hidden buffs, crit randomness, progression and online
 multiplayer are not implemented. Artwork is static with CSS combat animations.
 Balance is provisional and needs human playtesting.
 

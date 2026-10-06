@@ -182,7 +182,7 @@ function renderChoices() {
   $('loadout-options').innerHTML=selection.map(id=>{
     const c=catalog.find(c=>c.id===id);if(!c?.movePool)return '';
     const chosen=loadouts[id]??(loadouts[id]=[0,1,2,3]);
-    return `<fieldset class="loadout"><legend>${c.name} · ${chosen.length}/4 moves</legend><small>${Object.entries(c.stats).map(([k,v])=>`${k} ${v}`).join(' · ')}</small><div>${c.movePool.map((m,i)=>{
+    return `<fieldset class="loadout"><legend>${c.name} · ${chosen.length}/4 moves</legend><details><summary>Character stats</summary><small>${Object.entries(c.stats).map(([k,v])=>`${k} ${v}`).join(' · ')}</small></details><div>${c.movePool.map((m,i)=>{
       const fixed=c.signatureMoves.includes(i),checked=chosen.includes(i);
       return `<label><input type="checkbox" data-character="${id}" data-pool="${i}" ${checked?'checked':''} ${fixed||busy||(!checked&&chosen.length===4)?'disabled':''}>${m.name}${fixed?' · signature':''}</label>`;
     }).join('')}</div></fieldset>`;

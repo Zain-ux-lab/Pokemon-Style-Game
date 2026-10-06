@@ -14,7 +14,7 @@ DURATIONS = {'spores': 2, 'thorns': 1, 'mark': 2, 'paralyse': 1,
 DESCRIPTIONS = {
     'echo': 'Deal 10 delayed damage after your next action; either character switching cancels it.',
     'spores': 'For two actions, damaging moves cause 6 recoil. Switching clears it.',
-    'drain': 'Recover 25% of direct HP damage dealt, rounded down, up to 4 HP.',
+    'drain': 'Recover direct HP damage × Recovery / 40, rounded down, up to 4 HP and missing HP (25% at Recovery 10).',
     'thorns': 'Reflect 14 damage from contact hits until after your next action.',
     'mark': 'Mark for two actions. Piercing Volley consumes the mark for +18 damage.',
     'exploit': 'Consume a mark for +18 damage.',

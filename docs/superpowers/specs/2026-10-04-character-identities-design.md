@@ -35,7 +35,7 @@ owns the interface. This change does not edit frontend files.
 |---|---|
 | echo | Deal 10 delayed damage after your next action; either character switching cancels it. |
 | spores | For two actions, damaging moves cause 6 recoil. Switching clears it. |
-| drain | Recover 25% of direct HP damage dealt, rounded down, up to 4 HP. |
+| drain | Recover direct HP damage × Recovery / 40, rounded down, up to 4 HP and missing HP (25% at Recovery 10). |
 | thorns | Reflect 14 damage from contact hits until after your next action. |
 | mark | Mark for two actions. Piercing Volley consumes the mark for +18 damage. |
 | exploit | Consume a mark for +18 damage. |
@@ -86,7 +86,7 @@ These are initial playtest values, not a claim of competitive balance.
 | Move | Power / recovery | Type | Effect |
 |---|---|---|---|
 | Ember Beam | 23 | Magic | Direct attack. |
-| Soul Siphon | 16 | Spirit | Recover 25% of direct HP damage dealt, rounded down, up to 4 HP. |
+| Soul Siphon | 16 | Spirit | Recover direct HP damage × Recovery / 40, rounded down, up to 4 HP and missing HP (25% at Recovery 10). |
 | Lantern Flare | 12 HP | — | Uses one action. |
 | Revealing Light | 10 | Spirit | Next direct hit deals 25% more damage; expires after two actions. |
 
