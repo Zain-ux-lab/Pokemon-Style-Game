@@ -46,7 +46,7 @@ function setError(message = '') {
 }
 function current(player = 0) { return state.teams[player][state.active[player]]; }
 function allowed(kind, index) { return !busy && !disconnected && state?.actions.some(a => a.kind === kind && a.index === index); }
-function artwork(c) { return `<img class="sprite" src="assets/characters/${c.id}.png" alt="${c.name}" decoding="async">`; }
+function artwork(c) { return `<img class="sprite" src="assets/characters/${c.id}.png" alt="${c.name}" decoding="sync">`; }
 function portrait(c, index, enemy = false) {
   const player = enemy ? 1 : 0;
   const active = state.active[player] === index;
