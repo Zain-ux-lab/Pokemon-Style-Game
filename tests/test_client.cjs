@@ -71,7 +71,7 @@ test('move details distinguish healing and guarding from attacks', async () => {
   const nodes = new Map();
   const get = id => {if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};
   const healer = {id:'glowmire',name:'Glowmire',art:'Glowmire',type:'Spirit',hp:60,maxHp:90,
-    moves:[{name:'Ember Beam',effect:'damage',amount:21,description:'Deals damage.',symbol:'✦'},
+    moves:[{name:'Ember Beam',effect:'damage',amount:26,baseDamage:21,description:'Deals damage.',symbol:'✦'},
       {name:'Lantern Flare',effect:'heal',amount:25,description:'Restore up to 25 HP.',symbol:'＋'},
       {name:'Root Snare',effect:'guard',amount:50,description:'Reduce the next hit by 50%.',symbol:'◈'}]};
   const enemy = {id:'mage',name:'Mage',art:'Mage',type:'Magic',hp:100,maxHp:100,moves:[]};
@@ -85,6 +85,9 @@ test('move details distinguish healing and guarding from attacks', async () => {
   vm.runInContext(readFileSync(new URL('../frontend/script.js',`file://${__filename}`),'utf8'),context);
   await new Promise(setImmediate);
 
+  vm.runInContext('preview(0)',context);
+  assert.match(get('details').innerHTML,/21<small>base damage/);
+  assert.doesNotMatch(get('details').innerHTML,/26<small>/);
   vm.runInContext('preview(1)',context);
   assert.match(get('details').innerHTML,/RECOVERY[\s\S]*25[\s\S]*HP restored/);
   vm.runInContext('preview(2)',context);

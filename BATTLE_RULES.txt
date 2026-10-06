@@ -1,5 +1,5 @@
 BATTLELAB — BATTLE RULES
-Updated: 1 October 2026
+Updated: 6 October 2026
 
 PURPOSE
 Record the current battle rules and keep unresolved design choices separate.
@@ -27,35 +27,27 @@ selection in the README and starter-code comments.
 - The prototype has the human move first.
 - The bot responds automatically after the human action.
 
-5. CHARACTER MOVES
-- Each character has three move choices in the current prototype.
-- The roster names and current move names are defined in
-  `backend/api/routes.py`.
-- These special-move assignments replace one direct attack for each listed
-  character:
-  - Bramblebelly — Root Snare: guard against the next incoming attack,
-    reducing its damage by 50%. The guard is consumed by that hit. The move
-    deals no damage.
-  - Bastion — Shield Bash: guard against the next incoming attack, reducing
-    its damage by 50%. The guard is consumed by that hit. The move deals no
-    damage.
-  - Glowmire — Lantern Flare: restore 25 HP, up to the character's maximum HP.
-    The move deals no damage.
-  - Hushwing — Soft Wing: restore 20 HP, up to the character's maximum HP.
-    The move deals no damage.
-- All other characters keep their three direct attacks for this update.
-- The engine, bot, and browser battle use these effects. Healing and guarding
-  each consume one action.
-- No status effects are included in this release. Poison, stun, and other
-  continuing conditions are deferred.
-- Type names are labels only in this release. Type effectiveness and damage
-  bonuses are deferred until a matchup chart and balance values are agreed.
-- No simultaneous action selection, speed ordering, or move priority is added.
+5. CHARACTER MOVES AND TYPES
+- Each character keeps two signature moves and chooses two alternatives from
+  four options before battle. The four selected moves lock for the match.
+- HP, Power, Focus, Armour, Ward and Recovery vary by character.
+- Physical attacks scale with Power against Armour; Magic/Spirit attacks scale
+  with Focus against Ward. Recovery scales healing. Contact is independent.
+- Definitions and initial stats are in backend/roster.py.
+- Magic beats Physical; Physical beats Spirit; Spirit beats Magic.
+- Strong attacks deal 125% damage; resisted attacks deal 80%; same type is neutral.
+- Move type, not the user's character type, determines the matchup.
+- Signature effects, exact durations, numbers and resolution order are documented
+  in docs/superpowers/specs/2026-10-04-character-identities-design.md.
+- Conditions are deterministic. Offensive statuses deal a small initial hit.
+- No energy, cooldowns, random turn skips, speed order or move priority.
 
 6. VOLUNTARY SWITCHING
 - On their turn, a player may switch to another non-knocked-out character on
   their team.
 - Switching uses the player's turn; the player cannot also use a move.
+- Switching clears temporary effects and guard; paralysis blocks voluntary
+  switching for one action but never blocks free knockout replacement.
 
 7. KNOCKOUTS AND FREE REPLACEMENT
 - A character is knocked out when its health reaches zero and cannot continue
@@ -67,6 +59,7 @@ selection in the README and starter-code comments.
 
 8. VICTORY
 - A player wins when all three opposing characters have been knocked out.
+- If both final characters fall in the same action, the acting player loses.
 - If the defeated player has no eligible replacement, the match ends.
 
 9. DECISIONS STILL TO MAKE

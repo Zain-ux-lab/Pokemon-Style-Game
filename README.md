@@ -1,323 +1,93 @@
-> **Playable single-player prototype:** this branch connects the screen to the
-> Python engine and tactical bot. Follow [the game setup instructions](frontend/README.md).
-> The original proposal below is historical: multiplayer, accounts, database
-> persistence, special effects, and simultaneous turns are not implemented in
-> this prototype. Battles use alternating turns; types are currently labels only.
-
-# Pokemon-Style-Game
-Two players battle using teams of creatures with different moves, stats, abilities, and status effects.
-
 # BattleLab
 
-*A multiplayer turn-based battle engine built with Python.*
+A duo computer-science portfolio project: a browser-based, turn-based game
+against a tactical bot. Pick three of ten characters, customise their moves,
+and use type matchups and signature abilities to win.
 
-BattleLab is a backend-focused game systems project inspired by turn-based monster battlers. Instead of recreating an existing game, the focus is on building the underlying **battle engine**, **multiplayer networking**, and **server architecture** that power online turn-based games.
+## Team
 
-The project is designed as a **3-person CS portfolio project**, prioritising algorithms, software engineering, networking and backend development over complex graphics.
+- **Zain** — gameplay design, combat engine, character balance, bot and API.
+- **Abijeason** — interface, artwork, menus/settings, music and presentation.
 
-## Demo
+We review each other's changes through pull requests and share responsibility
+for integration and understanding the code. AI assists development; changes
+are tested and reviewed. Menu/settings/music work is in progress.
 
-> *(Add screenshots or a GIF once the project is playable.)*
+## Playable features
 
-## Features
+- Three-character teams; the bot randomly draws three different characters.
+- One active character and one action per turn.
+- Each character has two fixed signature moves and two selectable moves from
+  four alternatives. Selections lock before combat. The bot gets legal builds too.
+- HP, Power, Focus, Armour, Ward and Recovery vary by character.
+- Physical moves scale with Power against Armour. Magic/Spirit moves use Focus
+  against Ward. Contact is a separate property. Healing scales with Recovery.
+- Magic beats Physical; Physical beats Spirit; Spirit beats Magic.
+  Strong attacks deal 125%, resisted attacks 80%, same-type attacks 100%.
+- Deterministic statuses, healing, lifesteal, guard, delayed damage and counters.
+- Switching costs a turn and clears effects; knockout replacements are free.
+- Tactical bot searches its action and an opponent reply, then evaluates HP and
+  pending effects. It uses the same engine as the API.
+- Ten original character PNGs and eight randomly selected arenas. The arena
+  persists through refresh and does not repeat on consecutive session resets.
+- Move details show base damage. Attack announcements and floating HP changes
+  show outcomes; type symbols have accessible names and hover labels.
 
-* Online multiplayer battles using WebSockets
-* Server-authoritative battle engine
-* Turn-based combat with simultaneous move selection
-* Custom creatures, moves and abilities
-* Type effectiveness system
-* Status effects (Burn, Poison, Freeze, etc.)
-* Priority-based turn resolution
-* Player accounts and team management
-* Match history stored in a database
-* Docker support for easy deployment
+Effect applications are logged; persistent status badges are pending Abijeason's UI integration. Effects are not intentionally hidden. Hidden buffs, crit randomness, progression and online
+multiplayer are not implemented. Artwork is static with CSS combat animations.
+Balance is provisional and needs human playtesting.
 
-## Tech Stack
+## Run locally
 
-| Component       | Technology            |
-| --------------- | --------------------- |
-| Backend         | Python                |
-| API             | FastAPI               |
-| Multiplayer     | WebSockets            |
-| Database        | PostgreSQL            |
-| Frontend        | HTML, CSS, JavaScript |
-| Testing         | Pytest                |
-| Containers      | Docker                |
-| Version Control | Git                   |
-
-## System Architecture
-
-```text
-Browser Client
-      │
-      │ WebSocket
-      ▼
- FastAPI Server
-      │
- ┌────┴─────────┐
- │              │
-Battle Engine  PostgreSQL
- │
- ├── Turn Resolution
- ├── Damage System
- ├── Status Effects
- ├── Type Chart
- └── Match State
-```
-
-The server is the single source of truth. Clients only send player actions, while all battle calculations happen on the backend.
-
-## How Battles Work
-
-Each player selects a move.
-
-The server waits until both players have locked in their actions.
-
-The battle engine then resolves the turn using a deterministic sequence.
-
-```text
-Start Turn
-    ↓
-Receive both moves
-    ↓
-Determine move order
-    ↓
-Apply attacks
-    ↓
-Apply status effects
-    ↓
-Check knockouts
-    ↓
-End Turn
-```
-
-This prevents cheating and keeps every client synchronised.
-
-## Battle Engine
-
-Every creature is represented as structured data.
-
-Example:
-
-```json
-{
-  "name": "Rockling",
-  "hp": 120,
-  "attack": 80,
-  "defense": 95,
-  "speed": 30
-}
-```
-
-Moves are also data-driven.
-
-```json
-{
-  "name": "Boulder Toss",
-  "power": 70,
-  "accuracy": 90,
-  "type": "Rock",
-  "priority": 0
-}
-```
-
-The engine combines these values with modifiers such as critical hits, type effectiveness and status effects to calculate damage.
-
-## Type Effectiveness
-
-Rather than hard-coding every interaction, BattleLab stores effectiveness values in a lookup table.
-
-| Attacker | Defender | Multiplier |
-| -------- | -------- | ---------- |
-| Fire     | Grass    | 2×         |
-| Fire     | Water    | 0.5×       |
-| Fire     | Fire     | 0.5×       |
-
-This makes adding new creature types straightforward.
-
-## Status System
-
-Status effects are managed as persistent battle states.
-
-Example:
-
-```text
-Rockling
-
-HP: 82
-Status: Burn
-Turns Remaining: 3
-```
-
-Each turn the engine automatically updates active effects before continuing.
-
-Supported statuses include:
-
-* Burn
-* Poison
-* Freeze
-* Paralysis *(planned)*
-* Sleep *(planned)*
-
-## Multiplayer
-
-BattleLab uses WebSockets for real-time communication.
-
-```text
-Player A
-   │
-   ▼
-FastAPI Server
-   ▲
-   │
-Player B
-```
-
-Players never calculate damage locally.
-
-The server validates every move before updating both clients.
-
-## Database
-
-Persistent data includes:
-
-* Users
-* Teams
-* Creatures
-* Match History
-* Win/Loss Statistics
-
-Example schema:
-
-```text
-users
-teams
-creatures
-matches
-```
-
-## Project Structure
-
-```text
-battlelab/
-│
-├── backend/
-│   ├── api/
-│   ├── engine/
-│   ├── models/
-│   ├── services/
-│   └── main.py
-│
-├── frontend/
-│   ├── index.html
-│   ├── style.css
-│   └── script.js
-│
-├── database/
-│
-├── tests/
-│
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── README.md
-```
-
-## Getting Started
-
-### Clone
+From the cloned repository:
 
 ```bash
-git clone https://github.com/yourusername/battlelab.git
-cd battlelab
-```
-
-### Install
-
-```bash
-pip install -r requirements.txt
-```
-
-### Run
-
-```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 python -m uvicorn backend.main:app
 ```
 
-Battles are held in server memory. Restarting the server ends active battles;
-leave automatic reload off while playtesting. Restart manually after backend edits.
+Open http://127.0.0.1:8000/ and keep the terminal running. Control+C stops it.
+Do not enable automatic reload while playing: battles live in one server process
+and disappear on restart. Sessions expire after 30 minutes of inactivity.
+Use one worker. Accounts, persistent saves and a shared production store are
+not implemented.
 
-Or with Docker:
+## Verify
 
 ```bash
-docker compose up --build
+python -m pytest -q
+node --test tests/test_client.cjs
 ```
 
-## Development Roadmap
+Python tests cover engine effects, type/stat scaling, legal actions, bot decisions,
+API isolation/revisions, move selection and arena persistence. Node tests cover
+client connection recovery, move details and turn input locking.
 
-### Phase 1
+## Code map
 
-* Creature system
-* Move system
-* Turn engine
-* Damage calculation
+- `backend/engine/` — creatures, moves, stat/type damage and turn resolution.
+- `backend/roster.py` — character stats, signature moves and selectable pools.
+- `backend/bot/` — legal-action simulation and deterministic lookahead.
+- `backend/api/routes.py` — authoritative browser sessions and battle snapshots.
+- `backend/arenas.py` — visual-only arena catalog.
+- `frontend/` — selection, battle screen, CSS effects and original PNG assets.
+- `tests/` — gameplay and browser-facing regression checks.
 
-### Phase 2
+See [battle rules](BATTLE_RULES.txt), [UI integration notes](docs/GAMEPLAY_UI_HANDOFF.md),
+[character artwork](docs/CHARACTER_ART.md) and [arena artwork](docs/ARENA_ART.md).
 
-* Type chart
-* Status effects
-* Switching creatures
-* Win conditions
+## Collaboration
 
-### Phase 3
+Pull the latest shared branch before starting, make changes on a feature branch,
+run relevant checks, and open a PR with behaviour and validation clearly stated.
+A teammate reviews before merge. Coordinate edits to shared API/frontend files
+in the PR; do not overwrite someone else's uncommitted work.
 
-* WebSocket multiplayer
-* Matchmaking
-* Database integration
+## Portfolio focus
 
-### Phase 4
-
-* Polish
-* Battle animations
-* Replay system
-* Ranked ladder
-
-## Team Responsibilities
-
-### Member 1 – Battle Engine
-
-* Damage calculations
-* Turn order
-* Status effects
-* Battle rules
-
-### Member 2 – Backend
-
-* FastAPI
-* WebSockets
-* Database
-* Docker
-
-### Member 3 – Frontend
-
-* Battle interface
-* Animations
-* Menus
-* Player experience
-
-## What This Project Demonstrates
-
-This project was intentionally built to demonstrate software engineering concepts commonly required for backend and software internships.
-
-* Python development
-* REST APIs
-* WebSocket networking
-* State management
-* Data structures
-* Algorithms
-* Docker
-* PostgreSQL
-* Git workflows
-* Testing
-
-Rather than focusing on graphics, BattleLab focuses on building the systems that make online games work.
+Shared combat simulation, deterministic AI search, state management, API validation,
+regression testing, measured playtests and a professional two-person Git workflow.
+The earlier multiplayer/database scaffold is historical, not a claim of shipped
+networking or database functionality.

@@ -1,16 +1,15 @@
-function sprite(name){
- const shapes = name==='Mage' ? '<path fill="#394d65" d="M15 28h34l8 30H9z"/><path fill="#526e86" d="M22 28h20l7 26H16z"/><path fill="#e4c9a0" d="M24 17h16v17H24z"/><path fill="#e6e0cf" d="M22 27h21v8h-4v7h-5v5h-6v-6h-4z"/><path fill="#344b63" d="M13 18h38v6H13zM23 10h20v9H23zM28 3h10v9H28zM33 0h5v4h-5z"/><path fill="#bea16b" d="M20 17h25v3H20z"/><path fill="#27353c" d="M13 56h14v5H13zM36 56h15v5H36z"/><path fill="#a07143" d="M51 22h3v32h-3z"/><path fill="#9fdbcd" d="M49 17h7v7h-7z"/><path fill="#313c41" d="M27 24h3v3h-3zM36 24h3v3h-3z"/>' : name==='Sporestag' ? '<path fill="#455742" d="M8 45h8v13H8zM22 46h7v14h-7zM39 46h7v14h-7zM51 43h7v15h-7z"/><path fill="#7f9152" d="M8 26h46v25H8zM16 19h29v9H16z"/><path fill="#a4ad66" d="M18 23h25v20H18z"/><path fill="#576b48" d="M33 23h5v27h-5z"/><path fill="#64704b" d="M4 34h18v16H4z"/><path fill="#d6c39a" d="M7 19h5v18H7zM2 16h5v8H2zM11 14h5v10h-5z"/><path fill="#e6dec1" d="M24 11h4v12h-4zM42 17h4v10h-4z"/><path fill="#bd7754" d="M17 8h18v7H17zM21 4h10v5H21zM37 15h16v6H37z"/><path fill="#e8c095" d="M21 8h4v3h-4zM28 9h4v3h-4zM41 16h4v3h-4z"/><path fill="#182e2b" d="M7 36h4v4H7z"/>' : '<path fill="#8cb9af" d="M20 54h24v4H20zM25 59h13v3H25z"/><path fill="#415d60" d="M19 17h26v36H19zM15 21h34v5H15zM15 47h34v6H15zM24 7h16v12H24z"/><path fill="#98b9a3" d="M28 10h8v7h-8z"/><path fill="#dbb670" d="M23 25h18v21H23z"/><path fill="#f6d994" d="M27 28h10v14H27z"/><path fill="#fff1bd" d="M30 30h5v8h-5z"/><path fill="#314b51" d="M29 22h4v26h-4zM19 34h25v3H19z"/><path fill="#bad7c4" d="M9 28h5v13H9zM50 26h5v13h-5z"/>';
- return `<svg class="sprite" viewBox="0 0 64 64" shape-rendering="crispEdges" role="img" aria-label="${name} placeholder artwork"><ellipse cx="32" cy="61" rx="24" ry="2" fill="#263d3320"/>${shapes}</svg>`;
-}
 // The server owns combat, legal actions, damage previews and bot decisions.
 let state = null;
 let catalog = [];
 let selection = [];
+let loadouts = {};
 let busy = false;
 let disconnected = false;
 let detailTimer;
 const $ = id => document.getElementById(id);
 const TYPES = {Magic:'#6a64a2', Physical:'#9c633b', Spirit:'#3c827c'};
+const TYPE_SYMBOLS = {Magic:'✦',Physical:'◆',Spirit:'◉'};
+function typeSymbol(type) { return `<span class="type" title="${type}" aria-label="${type}">${TYPE_SYMBOLS[type]??'◇'}</span>`; }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function request(path, body) {
@@ -36,7 +35,7 @@ function setError(message = '') {
 }
 function current(player = 0) { return state.teams[player][state.active[player]]; }
 function allowed(kind, index) { return !busy && !disconnected && state?.actions.some(a => a.kind === kind && a.index === index); }
-function artwork(c) { return sprite(c.art).replace(`${c.art} placeholder artwork`, `${c.name} placeholder artwork`); }
+function artwork(c) { return `<img class="sprite" src="assets/characters/${c.id}.png" alt="${c.name}" decoding="async">`; }
 function portrait(c, index, enemy = false) {
   const player = enemy ? 1 : 0;
   const active = state.active[player] === index;
@@ -53,10 +52,17 @@ function render() {
     return;
   }
   hideDetails();
+  if (state.arena) {
+    const arena=document.querySelector('.arena');
+    arena.style.backgroundImage=`url("${state.arena.image}")`;
+    arena.setAttribute('aria-label',`${state.arena.name} battlefield`);
+    $('arena-name').textContent=state.arena.name.toUpperCase();
+    document.title=`BattleLab · ${state.arena.name}`;
+  }
   for (let p=0; p<2; p++) {
     const c = current(p);
     $(`hud-${p}`).style.setProperty('--type', TYPES[c.type]);
-    $(`hud-${p}`).innerHTML = `<div class="side-label">${p===0?'YOU':'OPPONENT'} <span>${p===0?'PLAYER':'TACTICAL BOT'}</span></div><div class="hud-top"><strong>${c.name}</strong><span class="type">${c.type.toUpperCase()}</span></div><div class="health" role="meter" aria-label="${p===0?'Your':'Opponent'} health" aria-valuemin="0" aria-valuemax="${c.maxHp}" aria-valuenow="${c.hp}"><span style="width:${100*c.hp/c.maxHp}%"></span></div><div class="hp">${c.hp} / ${c.maxHp} HP</div>${c.guardPercent?`<div class="guard-state">◈ NEXT HIT −${c.guardPercent}%</div>`:''}`;
+    $(`hud-${p}`).innerHTML = `<div class="side-label">${p===0?'YOU':'OPPONENT'} <span>${p===0?'PLAYER':'TACTICAL BOT'}</span></div><div class="hud-top"><strong>${c.name}</strong><span class="type" title="${c.type}" aria-label="${c.type}">${TYPE_SYMBOLS[c.type]}</span></div><div class="health" role="meter" aria-label="${p===0?'Your':'Opponent'} health" aria-valuemin="0" aria-valuemax="${c.maxHp}" aria-valuenow="${c.hp}"><span style="width:${100*c.hp/c.maxHp}%"></span></div><div class="hp">${c.hp} / ${c.maxHp} HP</div>${c.guardPercent?`<div class="guard-state">◈ NEXT HIT −${c.guardPercent}%</div>`:''}`;
     $(`fighter-${p}`).innerHTML = artwork(c);
     $(`fighter-${p}`).classList.toggle('fainted', c.hp===0);
   }
@@ -82,8 +88,8 @@ function preview(index) {
   const c=current(), move=c.moves[index];
   $('details').style.setProperty('--type',TYPES[c.type]);
   const label=move.effect==='heal'?'RECOVERY':move.effect==='guard'?'GUARD':'ATTACK';
-  const value=move.effect==='guard'?`${move.amount}%`:move.amount;
-  const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':`damage to ${current(1).name}`;
+  const value=move.effect==='guard'?`${move.amount}%`:move.effect==='damage'?(move.baseDamage??move.amount):move.amount;
+  const unit=move.effect==='heal'?'HP restored':move.effect==='guard'?'next hit reduction':'base damage';
   $('details').innerHTML=`<div class="detail-kicker">${label}</div><h3>${move.name}</h3><p>${move.description}</p><div class="damage">${value}<small>${unit}</small></div>`;
 }
 function hideDetails() {
@@ -120,6 +126,20 @@ async function sendAction(kind,index) {
     for (let i=0;i<data.frames.length;i++) {
       const frame=data.frames[i];
       state=frame;render();
+      if (frame.animation?.moveName) {
+        const name=document.createElement('div');name.className='move-announcement';
+        name.textContent=`${frame.animation.actor===0?'You':'Opponent'} · ${frame.animation.moveName}`;
+        document.querySelector('.arena').append(name);setTimeout(()=>name.remove(),900);
+      }
+      for (const change of frame.animation?.hpChanges??[]) {
+        const c=current(change.player),bar=$(`hud-${change.player}`).querySelector('.health span');
+        if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+          bar?.animate([{width:`${100*(c.hp-change.amount)/c.maxHp}%`},{width:`${100*c.hp/c.maxHp}%`}],{duration:420,easing:'ease-out'});
+        }
+        const number=document.createElement('span');number.className=`hp-change ${change.amount>0?'recovery':''}`;
+        number.textContent=`${change.amount>0?'+':''}${change.amount}`;
+        $(`fighter-${change.player}`).append(number);setTimeout(()=>number.remove(),900);
+      }
       if (frame.animation?.kind==='attack') {
         const attacker=$(`fighter-${frame.animation.actor}`), target=$(`fighter-${frame.animation.target}`);
         attacker.classList.remove('attack-animation'); target.classList.remove('hit-animation');
@@ -153,13 +173,26 @@ function renderChoices() {
     const rank=selection.indexOf(c.id);
     const featured=c.moves.find(m=>m.effect)||c.moves[0];
     const strength=featured.effect?`${featured.effect} ${featured.effect_amount}${featured.effect==='guard'?'%':' HP'}`:`${featured.power} power`;
-    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${c.type} · ${c.maxHp} HP</small><small>${featured.name} · ${strength}</small></button>`;
+    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${typeSymbol(c.type)} · ${c.maxHp} HP</small><small>${featured.name} · ${strength}</small></button>`;
   }).join('');
   $('team-options').querySelectorAll('button').forEach(button=>button.onclick=()=>{
     const id=button.dataset.id; selection=selection.includes(id)?selection.filter(c=>c!==id):[...selection,id];
     renderChoices(); $('team-options').querySelector(`[data-id="${id}"]`).focus();
   });
-  $('start-battle').disabled=busy || disconnected || selection.length!==3;
+  $('loadout-options').innerHTML=selection.map(id=>{
+    const c=catalog.find(c=>c.id===id);if(!c?.movePool)return '';
+    const chosen=loadouts[id]??(loadouts[id]=[0,1,2,3]);
+    return `<fieldset class="loadout"><legend>${c.name} · ${chosen.length}/4 moves</legend><details><summary>Character stats</summary><small>${Object.entries(c.stats).map(([k,v])=>`${k} ${v}`).join(' · ')}</small></details><div>${c.movePool.map((m,i)=>{
+      const fixed=c.signatureMoves.includes(i),checked=chosen.includes(i);
+      return `<label><input type="checkbox" data-character="${id}" data-pool="${i}" ${checked?'checked':''} ${fixed||busy||(!checked&&chosen.length===4)?'disabled':''}>${m.name}${fixed?' · signature':''}</label>`;
+    }).join('')}</div></fieldset>`;
+  }).join('');
+  $('loadout-options').querySelectorAll('input').forEach(input=>input.onchange=()=>{
+    const id=input.dataset.character,index=Number(input.dataset.pool);
+    loadouts[id]=input.checked?[...loadouts[id],index]:loadouts[id].filter(i=>i!==index);
+    renderChoices();
+  });
+  $('start-battle').disabled=busy || disconnected || selection.length!==3 || selection.some(id=>(loadouts[id]?.length??4)!==4);
   $('start-battle').textContent=busy?'Starting…':`Enter arena · ${selection.length} / 3`;
 }
 function openTeamPicker() {
@@ -174,7 +207,7 @@ async function startBattle() {
   if (busy || selection.length!==3 || disconnected) return;
   busy=true;setError();renderChoices();render();
   try {
-    state=(await request('/api/battle',{roster:selection})).state;
+    state=(await request('/api/battle',{roster:selection,loadouts:Object.fromEntries(selection.map(id=>[id,loadouts[id]??[0,1,2,3]]))})).state;
     $('team-dialog').close();
   } catch (error) { setError(error.status?error.message:'Could not start a battle. Check the server and try again.'); }
   finally { busy=false;renderChoices();render(); }

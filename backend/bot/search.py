@@ -82,4 +82,34 @@ def _evaluate(state: BattleState, bot_player: int) -> float:
         creature.current_hp / creature.max_hp
         for creature in opponent_team
     )
-    return 100 * living_difference + 20 * hp_difference
+    effect_difference = _effect_value(state, bot_player) - _effect_value(state, 1 - bot_player)
+    return 100 * living_difference + 20 * hp_difference + effect_difference
+
+
+def _effect_value(state: BattleState, player: int) -> float:
+    """Conservative HP-equivalent estimates beyond the two-action horizon.
+
+    These are positional estimates, not extra simulated damage. Switching and
+    safe moves can avoid conditions, so their potential is discounted by half.
+    """
+    active = state.active_creature(player)
+    enemy = state.active_creature(1 - player)
+    if active.is_knocked_out:
+        return 0
+    value = 0.0
+    for name, status in active.statuses.items():
+        if name == 'echo':
+            value += min(10, enemy.current_hp) * 20 / enemy.max_hp
+        elif name == 'thorns' and any(m.contact for m in enemy.moves):
+            value += 7 * 20 / enemy.max_hp
+        elif name == 'spores':
+            value -= 3 * status.turns * 20 / active.max_hp
+        elif name == 'confuse' and status.slot is not None:
+            value -= 4 * status.turns * 20 / active.max_hp
+        elif name == 'mark' and any(m.mechanic == 'exploit' for m in enemy.moves):
+            value -= 9 * 20 / active.max_hp
+        elif name == 'weaken':
+            value -= max((m.power for m in active.moves), default=0) * .125 * 20 / enemy.max_hp
+        elif name == 'expose':
+            value -= max((m.power for m in enemy.moves), default=0) * .125 * 20 / active.max_hp
+    return value
