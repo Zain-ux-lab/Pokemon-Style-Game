@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 
 from .creature import Creature
-from .damage import direct_damage, recoil_damage, drain_healing
+from .damage import direct_damage, recoil_damage, drain_healing, recovery_healing
 from .moves import Move
 from .status_effects import Status, DURATIONS
 
@@ -111,7 +111,7 @@ def resolve_turn(state: BattleState, move: Move) -> TurnResult:
             attacker.statuses['echo'] = Status(1)
             state.events.append(f'{attacker.name} prepared a spell echo.')
     elif move.effect == "heal":
-        healed = min(move.effect_amount, attacker.max_hp - attacker.current_hp)
+        healed = recovery_healing(attacker, move.effect_amount)
         attacker.current_hp += healed
     if move.effect == 'guard' and not attacker.is_knocked_out:
         guard_percent = move.effect_amount

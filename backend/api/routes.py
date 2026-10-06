@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from backend.bot.adapter import Action, legal_actions, simulate
 from backend.bot.search import choose_action
 from backend.engine.creature import Creature
-from backend.engine.damage import direct_damage, recoil_damage, base_damage, drain_healing
+from backend.engine.damage import direct_damage, recoil_damage, base_damage, drain_healing, recovery_healing
 from backend.engine.status_effects import DESCRIPTIONS
 from backend.engine.type_chart import effectiveness_percent
 from backend.roster import ROSTER, BY_ID
@@ -47,6 +47,7 @@ _lock = RLock()
 class TeamRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     roster: list[str] = Field(min_length=3, max_length=3)
+    loadouts: dict[str, list[StrictInt]] = Field(default_factory=dict)
 
 
 class ActionRequest(BaseModel):
@@ -73,8 +74,8 @@ def _move_view(creature: Creature, target: Creature, move: Move) -> dict:
                     delayedDamage=min(10, target.current_hp) if 'echo' in creature.statuses else 0)
     echo_note = f' Pending echo deals {metadata["delayedDamage"]} additional damage this action.' if metadata['delayedDamage'] else ''
     if move.effect == 'heal':
-        return dict(name=move.name, effect='heal', amount=min(move.effect_amount, creature.max_hp - creature.current_hp),
-                    description=f'Restores up to {move.effect_amount} HP. Uses your turn.' + echo_note, symbol='＋', **metadata)
+        return dict(name=move.name, effect='heal', amount=recovery_healing(creature,move.effect_amount),
+                    description=f'Restores up to {move.effect_amount * creature.recovery // 10} HP. Scales with Recovery.' + echo_note, symbol='＋', **metadata)
     if move.effect == 'guard' and move.power == 0:
         return dict(name=move.name, effect='guard', amount=move.effect_amount,
                     description=f'Reduces the next incoming hit by {move.effect_amount}%. Uses your turn.' + echo_note, symbol='◈', **metadata)
@@ -86,7 +87,7 @@ def _move_view(creature: Creature, target: Creature, move: Move) -> dict:
     recoil = min(creature.current_hp + healed, recoil_damage(creature, target, move))
     delayed = min(10, target.current_hp - damage) if 'echo' in creature.statuses and creature.current_hp + healed > recoil else 0
     metadata['delayedDamage'] = delayed
-    description = f'{move.damage_type} / {"contact" if move.contact else "ranged"}. '
+    description = f'{move.damage_type} / {"contact" if move.contact else "ranged"}. Scales with {"Power" if move.damage_type in {"Physical","Neutral"} else "Focus"}. '
     description += DESCRIPTIONS.get(move.mechanic, 'A direct attack.')
     if move.effect == 'guard':
         description += f' Grants {move.effect_amount}% protection against the next hit.'
@@ -95,6 +96,7 @@ def _move_view(creature: Creature, target: Creature, move: Move) -> dict:
     if delayed:
         description += f' Pending echo deals {delayed} additional damage this action.'
     return dict(name=move.name, effect='damage', amount=damage, baseDamage=base_damage(creature,target,move),
+                scalesWith='Power' if move.damage_type in {'Physical','Neutral'} else 'Focus',
                 guardPercent=move.effect_amount if move.effect == 'guard' else 0, healing=healed, selfDamage=recoil,
                 effectiveness=effectiveness_percent(move.damage_type, target.battle_type),
                 description=description, symbol='✦', **metadata)
@@ -111,6 +113,8 @@ def _snapshot(match: Match) -> dict:
             team.append({
                 'id': identifier, 'name': creature.name, 'type': info['type'], 'art': info['art'],
                 'maxHp': creature.max_hp, 'hp': creature.current_hp, 'guardPercent': creature.guard_percent,
+                'stats':dict(hp=creature.max_hp,power=creature.attack,focus=creature.focus,
+                             armour=creature.defense,ward=creature.ward,recovery=creature.recovery),
                 'statuses': [dict(name=name, turnsRemaining=status.turns, moveIndex=status.slot,
                                   description=DESCRIPTIONS[name]) for name, status in creature.statuses.items()],
                 'switchBlockedReason': 'Paralysed until after the next action.' if 'paralyse' in creature.statuses else None,
@@ -129,6 +133,7 @@ def _advance(match: Match, action: Action) -> dict:
     player = state.replacement_required if state.replacement_required is not None else state.current_player
     label = 'You' if player == 0 else 'Bot'
     actor = state.active_creature(player)
+    before_hp = [state.active_creature(p).current_hp for p in (0,1)]
     if action.kind == 'move':
         target = state.active_creature(1 - player)
         actor_hp = actor.current_hp
@@ -137,7 +142,7 @@ def _advance(match: Match, action: Action) -> dict:
         target_after = match.battle.active_creature(1 - player)
         if move.effect == 'heal':
             restored = match.battle.active_creature(player).current_hp - actor_hp
-            message = f'{label} · {actor.name} used {move.name} — restored {restored} HP.'
+            message = f'{label} · {actor.name} recovered {restored} HP.'
         elif move.effect == 'guard' and move.power == 0:
             message = f'{label} · {actor.name} used {move.name} — next hit reduced by {move.effect_amount}%.'
         elif move.effect == 'status' and move.power == 0:
@@ -160,6 +165,9 @@ def _advance(match: Match, action: Action) -> dict:
     frame = _snapshot(match)
     if action.kind == 'move':
         frame['animation'] = {'kind': 'attack' if move.power > 0 else move.effect, 'actor': player}
+        frame['animation']['moveName'] = move.name if move.power > 0 else None
+        frame['animation']['hpChanges'] = [dict(player=p,amount=match.battle.active_creature(p).current_hp-before_hp[p])
+                                         for p in (0,1) if match.battle.active_creature(p).current_hp != before_hp[p]]
         if move.power > 0:
             frame['animation']['target'] = 1 - player
     return frame
@@ -170,7 +178,7 @@ def roster():
     # Preserve selection cards while exposing offensive status metadata.
     result = deepcopy(ROSTER)
     for character in result:
-        for move in character['moves']:
+        for move in character['moves'] + character['movePool']:
             if move.get('effect') == 'status' and move.get('power', 0) > 0:
                 del move['effect']
                 move['appliesStatus'] = move['mechanic']
@@ -182,6 +190,13 @@ def roster():
 def new_battle(data: TeamRequest, request: Request, response: Response):
     if len(set(data.roster)) != 3 or any(c not in BY_ID for c in data.roster):
         raise HTTPException(422, 'Choose three different characters from the roster.')
+    if any(c not in data.roster for c in data.loadouts):
+        raise HTTPException(422, 'Move selections must belong to your chosen team.')
+    for identifier, indices in data.loadouts.items():
+        if (len(indices)!=4 or len(set(indices))!=4 or
+            any(i<0 or i>=len(BY_ID[identifier]['movePool']) for i in indices) or
+            not set(BY_ID[identifier]['signatureMoves']).issubset(indices)):
+            raise HTTPException(422, 'Keep both signature moves and choose two different alternatives.')
     with _lock:
         expired = [key for key, match in _matches.items() if monotonic() - match.touched > SESSION_SECONDS]
         for key in expired:
@@ -193,8 +208,20 @@ def new_battle(data: TeamRequest, request: Request, response: Response):
             session = token_urlsafe(32)
             response.set_cookie(COOKIE, session, httponly=True, samesite='strict', secure=request.url.scheme == 'https')
         rosters = [data.roster, sample([c for c in BY_ID if c not in data.roster], 3)]
-        teams = [[Creature(BY_ID[c]['name'], BY_ID[c]['maxHp'], 10, 10,
-                           tuple(Move(**move) for move in BY_ID[c]['moves']), battle_type=BY_ID[c]['type']) for c in ids] for ids in rosters]
+        teams=[]
+        for player,ids in enumerate(rosters):
+            team=[]
+            for c in ids:
+                info=BY_ID[c]; stats=info['stats']
+                if player==0:
+                    indices=data.loadouts.get(c,[0,1,2,3])
+                else:
+                    fixed=info['signatureMoves']
+                    indices=sorted(fixed+sample([i for i in range(6) if i not in fixed],2))
+                moves=tuple(Move(**info['movePool'][i]) for i in indices)
+                team.append(Creature(info['name'],info['maxHp'],stats['power'],stats['armour'],moves,
+                                     battle_type=info['type'],focus=stats['focus'],ward=stats['ward'],recovery=stats['recovery']))
+            teams.append(team)
         match = Match(BattleState(*teams), rosters)
         previous = _matches[session].arena_index if session in _matches else None
         match.arena_index = choice([i for i in range(len(ARENAS)) if i != previous])

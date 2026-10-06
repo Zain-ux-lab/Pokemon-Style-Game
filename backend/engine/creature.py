@@ -20,8 +20,15 @@ class Creature:
     battle_type: str = "Neutral"
     statuses: dict[str, Status] = field(default_factory=dict)
     last_damage: int = 0
+    focus: int | None = None
+    ward: int | None = None
+    recovery: int = 10
 
     def __post_init__(self) -> None:
+        self.focus = self.attack if self.focus is None else self.focus
+        self.ward = self.defense if self.ward is None else self.ward
+        if self.focus < 0 or self.ward <= 0 or self.recovery <= 0:
+            raise ValueError('focus must be nonnegative; ward and recovery must be positive')
         if self.battle_type not in TYPES:
             raise ValueError("unknown creature type")
         if not self.name.strip():

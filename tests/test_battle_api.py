@@ -69,8 +69,8 @@ def test_healing_restores_only_missing_hp_and_spends_one_action():
         frame = response.json()['frames'][0]
         assert frame['teams'][0][0]['hp'] - state['teams'][0][0]['hp'] == min(12, missing_hp)
         assert frame['teams'][1][0]['hp'] == state['teams'][1][0]['hp']
-        assert frame['animation'] == {'kind': 'heal', 'actor': 0}
-        assert 'restored' in frame['log'][-1]
+        assert frame['animation']['kind']=='heal' and frame['animation']['actor']==0
+        assert 'recovered' in frame['log'][-1]
         assert frame['player'] == 1
         assert frame['turn'] == state['turn'] + 1
 
@@ -85,7 +85,7 @@ def test_guard_protects_against_the_next_bot_attack():
         assert guarded['teams'][0][0]['guardPercent'] == 30
         preview=state['teams'][0][0]['moves'][1]
         assert guarded['teams'][1][0]['hp'] == state['teams'][1][0]['hp']-preview['amount']
-        assert guarded['animation'] == {'kind': 'attack', 'actor': 0, 'target': 1}
+        assert {k:guarded['animation'][k] for k in ('kind','actor','target')} == {'kind':'attack','actor':0,'target':1}
         assert guarded['teams'][1][0]['moves'][0]['amount'] == state['teams'][1][0]['moves'][0]['amount'] * 70 // 100
         assert 'guards the next hit by 30%' in guarded['log'][-1]
 
@@ -103,7 +103,7 @@ def test_action_runs_bot_and_rejects_duplicate_submission():
         target_before = state['teams'][1][0]['hp']
         target_after = result['frames'][0]['teams'][1][0]['hp']
         assert target_before - target_after == state['teams'][0][0]['moves'][2]['amount']
-        assert result['frames'][0]['animation'] == {'kind': 'attack', 'actor': 0, 'target': 1}
+        assert {k:result['frames'][0]['animation'][k] for k in ('kind','actor','target')} == {'kind':'attack','actor':0,'target':1}
         assert result['frames'][1]['animation']['kind'] == 'attack'
         assert result['frames'][1]['animation']['actor'] == 1
         assert client.post('/api/battle/actions', json=action).status_code == 409

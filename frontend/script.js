@@ -2,11 +2,14 @@
 let state = null;
 let catalog = [];
 let selection = [];
+let loadouts = {};
 let busy = false;
 let disconnected = false;
 let detailTimer;
 const $ = id => document.getElementById(id);
 const TYPES = {Magic:'#6a64a2', Physical:'#9c633b', Spirit:'#3c827c'};
+const TYPE_SYMBOLS = {Magic:'✦',Physical:'◆',Spirit:'◉'};
+function typeSymbol(type) { return `<span class="type" title="${type}" aria-label="${type}">${TYPE_SYMBOLS[type]??'◇'}</span>`; }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function request(path, body) {
@@ -59,7 +62,7 @@ function render() {
   for (let p=0; p<2; p++) {
     const c = current(p);
     $(`hud-${p}`).style.setProperty('--type', TYPES[c.type]);
-    $(`hud-${p}`).innerHTML = `<div class="side-label">${p===0?'YOU':'OPPONENT'} <span>${p===0?'PLAYER':'TACTICAL BOT'}</span></div><div class="hud-top"><strong>${c.name}</strong><span class="type">${c.type.toUpperCase()}</span></div><div class="health" role="meter" aria-label="${p===0?'Your':'Opponent'} health" aria-valuemin="0" aria-valuemax="${c.maxHp}" aria-valuenow="${c.hp}"><span style="width:${100*c.hp/c.maxHp}%"></span></div><div class="hp">${c.hp} / ${c.maxHp} HP</div>${c.guardPercent?`<div class="guard-state">◈ NEXT HIT −${c.guardPercent}%</div>`:''}`;
+    $(`hud-${p}`).innerHTML = `<div class="side-label">${p===0?'YOU':'OPPONENT'} <span>${p===0?'PLAYER':'TACTICAL BOT'}</span></div><div class="hud-top"><strong>${c.name}</strong><span class="type" title="${c.type}" aria-label="${c.type}">${TYPE_SYMBOLS[c.type]}</span></div><div class="health" role="meter" aria-label="${p===0?'Your':'Opponent'} health" aria-valuemin="0" aria-valuemax="${c.maxHp}" aria-valuenow="${c.hp}"><span style="width:${100*c.hp/c.maxHp}%"></span></div><div class="hp">${c.hp} / ${c.maxHp} HP</div>${c.guardPercent?`<div class="guard-state">◈ NEXT HIT −${c.guardPercent}%</div>`:''}`;
     $(`fighter-${p}`).innerHTML = artwork(c);
     $(`fighter-${p}`).classList.toggle('fainted', c.hp===0);
   }
@@ -123,6 +126,20 @@ async function sendAction(kind,index) {
     for (let i=0;i<data.frames.length;i++) {
       const frame=data.frames[i];
       state=frame;render();
+      if (frame.animation?.moveName) {
+        const name=document.createElement('div');name.className='move-announcement';
+        name.textContent=`${frame.animation.actor===0?'You':'Opponent'} · ${frame.animation.moveName}`;
+        document.querySelector('.arena').append(name);setTimeout(()=>name.remove(),900);
+      }
+      for (const change of frame.animation?.hpChanges??[]) {
+        const c=current(change.player),bar=$(`hud-${change.player}`).querySelector('.health span');
+        if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+          bar?.animate([{width:`${100*(c.hp-change.amount)/c.maxHp}%`},{width:`${100*c.hp/c.maxHp}%`}],{duration:420,easing:'ease-out'});
+        }
+        const number=document.createElement('span');number.className=`hp-change ${change.amount>0?'recovery':''}`;
+        number.textContent=`${change.amount>0?'+':''}${change.amount}`;
+        $(`fighter-${change.player}`).append(number);setTimeout(()=>number.remove(),900);
+      }
       if (frame.animation?.kind==='attack') {
         const attacker=$(`fighter-${frame.animation.actor}`), target=$(`fighter-${frame.animation.target}`);
         attacker.classList.remove('attack-animation'); target.classList.remove('hit-animation');
@@ -156,13 +173,26 @@ function renderChoices() {
     const rank=selection.indexOf(c.id);
     const featured=c.moves.find(m=>m.effect)||c.moves[0];
     const strength=featured.effect?`${featured.effect} ${featured.effect_amount}${featured.effect==='guard'?'%':' HP'}`:`${featured.power} power`;
-    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${c.type} · ${c.maxHp} HP</small><small>${featured.name} · ${strength}</small></button>`;
+    return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${typeSymbol(c.type)} · ${c.maxHp} HP</small><small>${featured.name} · ${strength}</small></button>`;
   }).join('');
   $('team-options').querySelectorAll('button').forEach(button=>button.onclick=()=>{
     const id=button.dataset.id; selection=selection.includes(id)?selection.filter(c=>c!==id):[...selection,id];
     renderChoices(); $('team-options').querySelector(`[data-id="${id}"]`).focus();
   });
-  $('start-battle').disabled=busy || disconnected || selection.length!==3;
+  $('loadout-options').innerHTML=selection.map(id=>{
+    const c=catalog.find(c=>c.id===id);if(!c?.movePool)return '';
+    const chosen=loadouts[id]??(loadouts[id]=[0,1,2,3]);
+    return `<fieldset class="loadout"><legend>${c.name} · ${chosen.length}/4 moves</legend><small>${Object.entries(c.stats).map(([k,v])=>`${k} ${v}`).join(' · ')}</small><div>${c.movePool.map((m,i)=>{
+      const fixed=c.signatureMoves.includes(i),checked=chosen.includes(i);
+      return `<label><input type="checkbox" data-character="${id}" data-pool="${i}" ${checked?'checked':''} ${fixed||busy||(!checked&&chosen.length===4)?'disabled':''}>${m.name}${fixed?' · signature':''}</label>`;
+    }).join('')}</div></fieldset>`;
+  }).join('');
+  $('loadout-options').querySelectorAll('input').forEach(input=>input.onchange=()=>{
+    const id=input.dataset.character,index=Number(input.dataset.pool);
+    loadouts[id]=input.checked?[...loadouts[id],index]:loadouts[id].filter(i=>i!==index);
+    renderChoices();
+  });
+  $('start-battle').disabled=busy || disconnected || selection.length!==3 || selection.some(id=>(loadouts[id]?.length??4)!==4);
   $('start-battle').textContent=busy?'Starting…':`Enter arena · ${selection.length} / 3`;
 }
 function openTeamPicker() {
@@ -177,7 +207,7 @@ async function startBattle() {
   if (busy || selection.length!==3 || disconnected) return;
   busy=true;setError();renderChoices();render();
   try {
-    state=(await request('/api/battle',{roster:selection})).state;
+    state=(await request('/api/battle',{roster:selection,loadouts:Object.fromEntries(selection.map(id=>[id,loadouts[id]??[0,1,2,3]]))})).state;
     $('team-dialog').close();
   } catch (error) { setError(error.status?error.message:'Could not start a battle. Check the server and try again.'); }
   finally { busy=false;renderChoices();render(); }

@@ -1,5 +1,5 @@
 BATTLELAB — BATTLE RULES
-Updated: 4 October 2026
+Updated: 6 October 2026
 
 PURPOSE
 Record the current battle rules and keep unresolved design choices separate.
@@ -28,7 +28,12 @@ selection in the README and starter-code comments.
 - The bot responds automatically after the human action.
 
 5. CHARACTER MOVES AND TYPES
-- Each character has four fixed moves defined in backend/roster.py.
+- Each character keeps two signature moves and chooses two alternatives from
+  four options before battle. The four selected moves lock for the match.
+- HP, Power, Focus, Armour, Ward and Recovery vary by character.
+- Physical attacks scale with Power against Armour; Magic/Spirit attacks scale
+  with Focus against Ward. Recovery scales healing. Contact is independent.
+- Definitions and initial stats are in backend/roster.py.
 - Magic beats Physical; Physical beats Spirit; Spirit beats Magic.
 - Strong attacks deal 125% damage; resisted attacks deal 80%; same type is neutral.
 - Move type, not the user's character type, determines the matchup.

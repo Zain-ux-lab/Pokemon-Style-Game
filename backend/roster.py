@@ -49,4 +49,33 @@ ROSTER = [
         attack('Rift Slash',24,'Spirit',contact=True), attack('Phase Strike',18,'Spirit',contact=True,mechanic='phase'),
         attack('Reality Tear',20,'Magic'), status('Fracture','expose','Spirit')]),
 ]
+# Profiles stay near ten so move power remains readable while roles differ.
+# power, focus, armour, ward, recovery
+PROFILES = {
+    'mage': (8,12,9,11,10), 'sporestag': (11,9,12,9,10),
+    'glowmire': (7,11,8,11,10), 'bramblebelly': (11,8,12,9,10),
+    'veyne': (12,9,9,9,9), 'coil': (9,12,10,10,8),
+    'bastion': (10,8,13,11,8), 'vesperfang': (9,12,9,10,9),
+    'hushwing': (8,10,8,12,12), 'riftclaw': (11,11,9,9,8),
+}
+SIGNATURES = {'mage':[0,2], 'sporestag':[1,2], 'glowmire':[1,2],
+              'bramblebelly':[0,3], 'veyne':[2,3], 'coil':[0,2],
+              'bastion':[0,2], 'vesperfang':[0,2], 'hushwing':[1,3], 'riftclaw':[0,1]}
+ALTERNATIVES = {
+    'mage':[status('Sapping Rune','weaken'), attack('Spectral Lance',20,'Spirit')],
+    'sporestag':[attack('Chitin Kick',20,'Physical',contact=True), status('Fungal Haze','weaken','Spirit')],
+    'glowmire':[attack('Ghost Spark',20,'Spirit'), guard('Lantern Ward','Magic')],
+    'bramblebelly':[heal('Second Wind',10), attack('Stone Toss',20,'Physical')],
+    'veyne':[status('Disarming Shot','weaken','Physical'), attack('Spirit Arrow',20,'Spirit')],
+    'coil':[guard('Magnetic Screen','Magic'), attack('Soul Current',20,'Spirit')],
+    'bastion':[heal('Rally',10), status('Crushing Shout','weaken','Physical')],
+    'vesperfang':[attack('Shadow Siphon',12,'Spirit',mechanic='drain'), guard('Dusk Mantle','Magic')],
+    'hushwing':[status('Unsettling Cry','expose','Spirit'), attack('Moon Spark',20,'Magic')],
+    'riftclaw':[guard('Phase Shell','Spirit'), status('Nerve Tear','weaken','Physical')],
+}
+for character in ROSTER:
+    power,focus,armour,ward,recovery=PROFILES[character['id']]
+    character['stats']=dict(hp=character['maxHp'],power=power,focus=focus,armour=armour,ward=ward,recovery=recovery)
+    character['signatureMoves']=SIGNATURES[character['id']]
+    character['movePool']=character['moves']+ALTERNATIVES[character['id']]
 BY_ID = {character['id']: character for character in ROSTER}

@@ -7,11 +7,18 @@ from .type_chart import effectiveness_percent
 
 def base_damage(attacker: Creature, defender: Creature, move: Move) -> int:
     """Unmodified damage before matchup, conditions, guard or remaining HP."""
-    return max(1, attacker.attack * move.power // defender.defense) if move.power else 0
+    physical = move.damage_type in {'Physical', 'Neutral'}
+    offense = attacker.attack if physical else attacker.focus
+    defense = defender.defense if physical else defender.ward
+    return max(1, offense * move.power // defense) if move.power else 0
 
 
 def drain_healing(attacker: Creature, damage: int) -> int:
-    return min(damage // 4, 4, attacker.max_hp - attacker.current_hp)
+    return min(damage * attacker.recovery // 40, 4, attacker.max_hp - attacker.current_hp)
+
+
+def recovery_healing(attacker: Creature, amount: int) -> int:
+    return min(amount * attacker.recovery // 10, attacker.max_hp - attacker.current_hp)
 
 
 def calculate_damage(attacker: Creature, defender: Creature, move: Move) -> int:
