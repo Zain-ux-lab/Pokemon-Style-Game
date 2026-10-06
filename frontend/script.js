@@ -255,8 +255,16 @@ async function connect() {
   }
 }
 $('switch-dialog').addEventListener('cancel',e=>{if(state?.replacement===0)e.preventDefault();});
-$('team-dialog').addEventListener('cancel',e=>{if(!state || busy)e.preventDefault();});
-$('team-cancel').onclick=()=>{if(!busy){$('team-dialog').close();if(state?.replacement===0)openSwitch();}};
+function closeTeamPicker() {
+  $('team-dialog').close();
+  if(state && state.winner!==null)render();
+  else if(state?.replacement===0)openSwitch();
+}
+$('team-dialog').addEventListener('cancel',e=>{
+  if(!state || busy)e.preventDefault();
+  else if(state.winner!==null){e.preventDefault();closeTeamPicker();}
+});
+$('team-cancel').onclick=()=>{if(!busy)closeTeamPicker();};
 $('restart').onclick=()=>{if(!busy)$('settings-dialog').showModal();};
 $('start-battle').onclick=startBattle;$('retry').onclick=connect;$('team-retry').onclick=connect;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')hideDetails();});

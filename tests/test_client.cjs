@@ -8,7 +8,7 @@ const vm = require('node:vm');
 function element() {
   return {open:false, hidden:false, style:{setProperty(){}},
     classList:{add(){},remove(){},toggle(){}},
-    addEventListener(){}, replaceChildren(){}, querySelectorAll(){return [];},
+    listeners:{}, addEventListener(type,listener){this.listeners[type]=listener;}, replaceChildren(){}, querySelectorAll(){return [];},
     querySelector(){return element();}, showModal(){this.open=true;}, close(){this.open=false;}};
 }
 
@@ -118,3 +118,27 @@ test('result screen names the winner and waits for final animations', async () =
   assert.equal(get('team-dialog').open,true);
   assert.equal(get('result-dialog').open,false);
 });
+
+for (const winner of [0,1]) for (const cancellation of ['close button','Escape']) {
+  test(`canceling replay with ${cancellation} returns to the ${winner===0?'victory':'defeat'} screen`, async () => {
+    const nodes=new Map();
+    const get=id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};
+    const c={id:'mage',name:'Mage',type:'Magic',hp:100,maxHp:100,moves:[]};
+    const completed={teams:[[c],[c]],active:[0,0],player:0,replacement:null,winner,turn:8,revision:4,actions:[],log:[]};
+    const replies=[[],{state:completed}];
+    const context=vm.createContext({document:{getElementById:get,querySelector:get,querySelectorAll:()=>[],createElement:element,addEventListener(){}},window:{addEventListener(){}},setTimeout,clearTimeout,AbortSignal,fetch:async()=>({ok:true,json:async()=>replies.shift()})});
+    vm.runInContext(readFileSync(new URL('../frontend/script.js',`file://${__filename}`),'utf8'),context);
+    await new Promise(setImmediate);
+    get('result-replay').onclick();
+    if(cancellation==='close button')get('team-cancel').onclick();
+    else {
+      const event={defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}};
+      get('team-dialog').listeners.cancel(event);
+      if(!event.defaultPrevented)get('team-dialog').close();
+    }
+    assert.equal(get('team-dialog').open,false);
+    assert.equal(get('result-dialog').open,true,'Cancel must restore the completed match result');
+    assert.equal(get('result-title').textContent,winner===0?'Victory':'Defeat');
+    assert.equal(get('result-team').textContent,'Mage');
+  });
+}
