@@ -1,6 +1,55 @@
 
 .detail-panel{width:205px!important;max-height:180px;padding:14px!important;border-radius:14px;overflow:hidden}.detail-panel h3{font-size:16px}.detail-panel p{font-size:11px}.detail-panel .damage{font-size:22px}
-.arena:before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 40% 70%,transparent 20%,#07162855 100%);z-index:0}.fighter:before{content:'';position:absolute;bottom:-4%;left:8%;width:84%;height:13%;border-radius:50%;background:#08142260;filter:blur(6px);transform:scaleY(.5)}.fighter .sprite{position:relative;filter:drop-shadow(0 5px 8px #07162850)}.arena:after{background:linear-gradient(0deg,#07162880,transparent 22%,transparent 80%,#132b4440);transition:background .2s}.arena.impact-light:after{background:radial-gradient(ellipse at 50% 50%,#e9d4ff30,transparent 60%)}
+.arena:before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 40% 70%,transparent 20%,#07162855 100%);z-index:0}.arena:after{background:linear-gradient(0deg,#07162880,transparent 22%,transparent 80%,#132b4440);transition:background .2s}.arena.impact-light:after{background:radial-gradient(ellipse at 50% 50%,#e9d4ff30,transparent 60%)}
+
+/* The eight arena images share a 1672:941 frame. Crop 8% toward the horizon. */
+.arena{background-size:max(108vw,191.9dvh) auto;background-position:center 25%}
+.fighter.left,.fighter.right{
+  --fighter-size:263px;
+  --body-scale:1;
+  --body-ratio:.94;
+  --sprite-lift:0%;
+  --shadow-width:60%;
+  --shadow-opacity:.55;
+  width:calc(var(--fighter-size) * var(--body-scale) * var(--body-ratio));
+  height:calc(var(--fighter-size) * var(--body-scale));
+  translate:-50% 0;
+  filter:none;
+}
+.fighter.left{left:35%;right:auto;bottom:25%}
+.fighter.right{--fighter-size:190px;left:60%;right:auto;bottom:35%}
+.fighter:before{
+  content:'';position:absolute;bottom:-2%;left:calc((100% - var(--shadow-width)) / 2);
+  width:var(--shadow-width);height:6%;border-radius:50%;background:#081422;
+  opacity:var(--shadow-opacity);filter:blur(4px);transform:none;
+}
+.fighter .sprite{position:relative;bottom:var(--sprite-lift);animation:none;filter:drop-shadow(0 3px 4px #07162830)}
+.fighter.fainted{filter:grayscale(1)}
+/* Match the artwork's body shape and compensate for transparent foot padding. */
+.fighter:has(.sprite[alt="Mage"]){--body-ratio:.96;--sprite-lift:-1.4%}
+.fighter:has(.sprite[alt="Sporestag"]){--body-scale:.7;--body-ratio:1.5;--shadow-width:88%}
+.fighter:has(.sprite[alt="Glowmire"]){--body-scale:.85;--body-ratio:.83;--sprite-lift:8%;--shadow-width:50%;--shadow-opacity:.3}
+.fighter:has(.sprite[alt="Bramblebelly"]){--body-ratio:.98;--sprite-lift:-2.3%;--shadow-width:70%}
+.fighter:has(.sprite[alt="Veyne"]){--body-ratio:.92;--sprite-lift:-.8%}
+.fighter:has(.sprite[alt="Coil"]){--sprite-lift:-1.2%}
+.fighter:has(.sprite[alt="Bastion"]){--body-ratio:.95}
+.fighter:has(.sprite[alt="Vesperfang"]){--body-scale:.7;--body-ratio:1.5;--shadow-width:75%}
+.fighter:has(.sprite[alt="Hushwing"]){--body-scale:.7;--body-ratio:1.5;--sprite-lift:9%;--shadow-width:75%;--shadow-opacity:.3}
+.fighter:has(.sprite[alt="Riftclaw"]){--body-scale:.7;--body-ratio:1.5;--sprite-lift:-5%;--shadow-width:80%}
+.fighter:has(.sprite[alt="Glowmire"]) .sprite,.fighter:has(.sprite[alt="Hushwing"]) .sprite{animation:idle 3s ease-in-out infinite}
+@media(min-width:1100px){
+  .fighter.left{--fighter-size:clamp(280px,32dvh,340px)}
+  .fighter.right{--fighter-size:clamp(219px,24dvh,255px)}
+}
+@media(max-width:700px){
+  .fighter.left{--fighter-size:212px;left:30%;bottom:30%}
+  .fighter.right{--fighter-size:144px;left:75%;bottom:40%}
+}
+@media(max-height:540px) and (min-width:701px){
+  .arena{background-position:center 80%}
+  .fighter.left{--fighter-size:194px;left:40%;bottom:22%}
+  .fighter.right{--fighter-size:144px;left:60%;bottom:46%}
+}
 .move-fx{position:absolute;z-index:3;pointer-events:none;width:44px;height:44px;color:hsl(var(--hue) 75% 75%);animation:fx-flight var(--duration) ease-in forwards}.move-fx i{position:absolute;inset:5px;border:2px solid currentColor;border-radius:50%;transform:rotate(calc(var(--i)*42deg)) scale(calc(.5 + var(--i)*.12));box-shadow:0 0 14px currentColor}.fx-slash i{border-radius:0;border-width:0 0 3px;transform:rotate(calc(var(--spin) + var(--i)*14deg));height:4px}.fx-spark i{border-radius:0;clip-path:polygon(40% 0,90% 0,55% 40%,100% 40%,15% 100%,40% 55%,0 55%);background:currentColor}.fx-spore i{inset:auto;width:12px;height:12px;background:currentColor;left:calc(var(--i)*5px);top:calc(var(--i)*3px)}.fx-heal,.fx-shield{animation:fx-aura var(--duration) ease-out forwards;color:#98edcc}.fx-shield i{border-radius:35% 35% 50% 50%}.fx-heal i{border-radius:0;clip-path:polygon(35% 0,65% 0,65% 35%,100% 35%,100% 65%,65% 65%,65% 100%,35% 100%,35% 65%,0 65%,0 35%,35% 35%);background:currentColor}
 @keyframes fx-flight{0%{opacity:0;transform:scale(.4)}20%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--spin)) scale(1.6)}}@keyframes fx-aura{0%{opacity:0;transform:scale(.3)}40%{opacity:1}100%{opacity:0;transform:translateY(-35px) scale(2)}}
 #result-dialog{width:min(440px,calc(100vw - 32px));padding:36px;text-align:center;color:#fff1cf;background:linear-gradient(145deg,#193c60,#0c1f36);border:1px solid #d5ad65;border-radius:22px;box-shadow:0 20px 90px #0009}#result-dialog::backdrop{background:#06101dc0;backdrop-filter:blur(7px)}#result-dialog h1{font:48px Cinzel,serif;margin:10px 0;color:#f3d89c}#result-dialog p{line-height:1.6}#result-dialog a{display:block;margin-top:18px;color:#e5c88d}.result-emblem{font-size:44px;color:#e7c074}
