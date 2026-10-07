@@ -96,3 +96,14 @@ Shared combat simulation, deterministic AI search, state management, API validat
 regression testing, measured playtests and a professional two-person Git workflow.
 The earlier multiplayer/database scaffold is historical, not a claim of shipped
 networking or database functionality.
+
+## Bot evaluation
+
+The reproducible [bot evaluation](docs/evaluation/BOT_EVALUATION.md) compares the
+tactical bot against random and immediate-damage opponents using matched teams
+and both starting positions. The first 80-game sample found 92.5% wins against
+random but only 47.5% against damage-only; AI strength remains a work in progress.
+
+```bash
+python -m backend.bot.evaluation --fixtures 20 --seed 20261007 --output /tmp/bot-results.json
+```
