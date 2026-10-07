@@ -146,3 +146,21 @@ def test_bot_guards_to_survive_the_next_attack():
     state = BattleState([bot], [creature('Human', moves=[attacker])])
 
     assert choose_action(state, bot_player=0) == Action('move', 1)
+
+
+def test_bot_switches_early_when_a_reserve_has_a_better_damage_matchup():
+    # Staying alive for one reply is insufficient: the weak active loses the
+    # continuing exchange, while the reserve can trade damage favourably.
+    weak = creature('Weak matchup', hp=100, moves=[Move('Chip', 5)])
+    reserve = creature('Better matchup', hp=100, moves=[Move('Strike', 30)])
+    opponent = creature('Opponent', hp=100, moves=[Move('Strike', 20)])
+    state = BattleState([weak, reserve], [opponent])
+    assert choose_action(state, 0) == Action('switch', 1)
+
+
+def test_bot_keeps_attacking_when_switching_cannot_improve_the_matchup():
+    attack = Move('Strike', 20)
+    state = BattleState([creature('Active', hp=100, moves=[attack]),
+                         creature('Reserve', hp=100, moves=[attack])],
+                        [creature('Opponent', hp=100, moves=[attack])])
+    assert choose_action(state, 0) == Action('move', 0)

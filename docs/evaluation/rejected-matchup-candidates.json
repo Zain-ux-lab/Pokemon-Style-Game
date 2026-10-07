@@ -1,0 +1,42 @@
+{
+  "damage-rate-weight-60": {
+    "random": {
+      "games": 40,
+      "wins": 33,
+      "losses": 7,
+      "unfinished": 0,
+      "mean_actions": 36.85,
+      "decision_median_ms": 36.917416990036145,
+      "decision_p95_ms": 49.64225000003353
+    },
+    "damage": {
+      "games": 40,
+      "wins": 15,
+      "losses": 25,
+      "unfinished": 0,
+      "mean_actions": 27.575,
+      "decision_median_ms": 35.69900000002235,
+      "decision_p95_ms": 55.3889159928076
+    }
+  },
+  "remaining-hit-count-weight-10": {
+    "random": {
+      "games": 40,
+      "wins": 31,
+      "losses": 9,
+      "unfinished": 0,
+      "mean_actions": 39.775,
+      "decision_median_ms": 35.333437503140885,
+      "decision_p95_ms": 44.25483300292399
+    },
+    "damage": {
+      "games": 40,
+      "wins": 6,
+      "losses": 34,
+      "unfinished": 0,
+      "mean_actions": 31.95,
+      "decision_median_ms": 37.64529099862557,
+      "decision_p95_ms": 56.29150000459049
+    }
+  }
+}

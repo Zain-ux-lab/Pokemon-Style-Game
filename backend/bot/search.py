@@ -1,6 +1,7 @@
 """Deterministic two-action look-ahead for single-player battles."""
 
 from backend.engine.turn_engine import BattleState
+from backend.engine.damage import calculate_damage
 
 from .adapter import Action, legal_actions, simulate
 
@@ -83,7 +84,18 @@ def _evaluate(state: BattleState, bot_player: int) -> float:
         for creature in opponent_team
     )
     effect_difference = _effect_value(state, bot_player) - _effect_value(state, 1 - bot_player)
-    return 100 * living_difference + 20 * hp_difference + effect_difference
+    # Value the continuing exchange as well as the immediate reply. The
+    # engine supplies type/stat/status-aware damage; switch cost is already
+    # paid in the searched state. One continuing exchange is a positional
+    # estimate, not an additional simulated turn.
+    active = state.active_creature(bot_player)
+    enemy = state.active_creature(1 - bot_player)
+    matchup = 0.0
+    if not active.is_knocked_out and not enemy.is_knocked_out:
+        outgoing = max((calculate_damage(active, enemy, m) for m in active.moves), default=0)
+        incoming = max((calculate_damage(enemy, active, m) for m in enemy.moves), default=0)
+        matchup = 20 * (outgoing / enemy.max_hp - incoming / active.max_hp)
+    return 20 * living_difference + 20 * hp_difference + effect_difference + matchup
 
 
 def _effect_value(state: BattleState, player: int) -> float:
