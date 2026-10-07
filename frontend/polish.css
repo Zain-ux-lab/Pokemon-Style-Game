@@ -1,0 +1,178 @@
+
+.detail-panel{width:205px!important;max-height:180px;padding:14px!important;border-radius:14px;overflow:hidden}.detail-panel h3{font-size:16px}.detail-panel p{font-size:11px}.detail-panel .damage{font-size:22px}
+.arena:before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 40% 70%,transparent 20%,#07162855 100%);z-index:0}.arena:after{background:linear-gradient(0deg,#07162880,transparent 22%,transparent 80%,#132b4440);transition:background .2s}.arena.impact-light:after{background:radial-gradient(ellipse at 50% 50%,#e9d4ff30,transparent 60%)}
+
+/* The eight arena images share a 1672:941 frame. Crop 8% toward the horizon. */
+.arena{background-size:max(108vw,191.9dvh) auto;background-position:center 25%}
+.fighter.left,.fighter.right{
+  --fighter-size:263px;
+  --body-scale:1;
+  --body-ratio:.94;
+  --sprite-lift:0%;
+  --shadow-width:60%;
+  --shadow-opacity:.55;
+  width:calc(var(--fighter-size) * var(--body-scale) * var(--body-ratio));
+  height:calc(var(--fighter-size) * var(--body-scale));
+  translate:-50% 0;
+  filter:none;
+}
+.fighter.left{left:35%;right:auto;bottom:25%}
+.fighter.right{--fighter-size:190px;left:63%;right:auto;bottom:38%}
+.fighter:before{
+  content:'';position:absolute;bottom:-2%;left:calc((100% - var(--shadow-width)) / 2);
+  width:var(--shadow-width);height:6%;border-radius:50%;background:#081422;
+  opacity:var(--shadow-opacity);filter:blur(4px);transform:none;
+}
+.fighter .sprite{position:relative;bottom:var(--sprite-lift);animation:none;filter:drop-shadow(0 3px 4px #07162830)}
+.fighter.fainted{filter:grayscale(1)}
+/* Match the artwork's body shape and compensate for transparent foot padding. */
+.fighter:has(.sprite[alt="Mage"]){--body-ratio:.96;--sprite-lift:-1.4%}
+.fighter:has(.sprite[alt="Sporestag"]){--body-scale:.7;--body-ratio:1.5;--shadow-width:88%}
+.fighter:has(.sprite[alt="Glowmire"]){--body-scale:.85;--body-ratio:.83;--sprite-lift:8%;--shadow-width:50%;--shadow-opacity:.3}
+.fighter:has(.sprite[alt="Bramblebelly"]){--body-ratio:.98;--sprite-lift:-2.3%;--shadow-width:70%}
+.fighter:has(.sprite[alt="Veyne"]){--body-ratio:.92;--sprite-lift:-.8%}
+.fighter:has(.sprite[alt="Coil"]){--sprite-lift:-1.2%}
+.fighter:has(.sprite[alt="Bastion"]){--body-ratio:.95}
+.fighter:has(.sprite[alt="Vesperfang"]){--body-scale:.9;--body-ratio:1.5;--shadow-width:75%}
+.fighter:has(.sprite[alt="Hushwing"]){--body-scale:.7;--body-ratio:1.5;--sprite-lift:9%;--shadow-width:75%;--shadow-opacity:.3}
+.fighter:has(.sprite[alt="Riftclaw"]){--body-scale:.7;--body-ratio:1.5;--sprite-lift:-5%;--shadow-width:80%}
+.fighter:has(.sprite[alt="Glowmire"]) .sprite,.fighter:has(.sprite[alt="Hushwing"]) .sprite{animation:idle 3s ease-in-out infinite}
+@media(min-width:1100px){
+  .fighter.left{--fighter-size:clamp(280px,32dvh,340px)}
+  .fighter.right{--fighter-size:clamp(219px,24dvh,255px)}
+}
+@media(max-width:700px){
+  .fighter.left{--fighter-size:212px;left:30%;bottom:30%}
+  .fighter.right{--fighter-size:144px;left:78%;bottom:43%}
+}
+@media(max-height:540px) and (min-width:701px){
+  .arena{background-position:center 80%}
+  .fighter.left{--fighter-size:194px;left:40%;bottom:22%}
+  .fighter.right{--fighter-size:144px;left:63%;bottom:49%}
+}
+.move-fx{position:absolute;z-index:3;pointer-events:none;width:44px;height:44px;color:hsl(var(--hue) 75% 75%);animation:fx-flight var(--duration) ease-in forwards}.move-fx i{position:absolute;inset:5px;border:2px solid currentColor;border-radius:50%;transform:rotate(calc(var(--i)*42deg)) scale(calc(.5 + var(--i)*.12));box-shadow:0 0 14px currentColor}.fx-slash i{border-radius:0;border-width:0 0 3px;transform:rotate(calc(var(--spin) + var(--i)*14deg));height:4px}.fx-spark i{border-radius:0;clip-path:polygon(40% 0,90% 0,55% 40%,100% 40%,15% 100%,40% 55%,0 55%);background:currentColor}.fx-spore i{inset:auto;width:12px;height:12px;background:currentColor;left:calc(var(--i)*5px);top:calc(var(--i)*3px)}.fx-heal,.fx-shield{animation:fx-aura var(--duration) ease-out forwards;color:#98edcc}.fx-shield i{border-radius:35% 35% 50% 50%}.fx-heal i{border-radius:0;clip-path:polygon(35% 0,65% 0,65% 35%,100% 35%,100% 65%,65% 65%,65% 100%,35% 100%,35% 65%,0 65%,0 35%,35% 35%);background:currentColor}
+@keyframes fx-flight{0%{opacity:0;transform:scale(.4)}20%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--spin)) scale(1.6)}}@keyframes fx-aura{0%{opacity:0;transform:scale(.3)}40%{opacity:1}100%{opacity:0;transform:translateY(-35px) scale(2)}}
+#result-dialog{width:min(440px,calc(100vw - 32px));padding:36px;text-align:center;color:#fff1cf;background:linear-gradient(145deg,#193c60,#0c1f36);border:1px solid #d5ad65;border-radius:22px;box-shadow:0 20px 90px #0009}#result-dialog::backdrop{background:#06101dc0;backdrop-filter:blur(7px)}#result-dialog h1{font:48px Cinzel,serif;margin:10px 0;color:#f3d89c}#result-dialog p{line-height:1.6}#result-dialog a{display:block;margin-top:18px;color:#e5c88d}.result-emblem{font-size:44px;color:#e7c074}
+.guide-page{margin:0;background:#f4efe4;color:#21354a;font:16px/1.7 Barlow,system-ui,sans-serif}.guide-page nav{display:flex;justify-content:space-between;padding:20px;max-width:960px;margin:auto}.guide-page a{color:#29516d}.guide-page main{max-width:900px;margin:20px auto;padding:28px}.guide-page h1,.guide-page h2,.guide-page h3{font-family:Cinzel,serif;line-height:1.3}.guide-page h1{font-size:36px}.guide-page h2{margin-top:48px;border-top:1px solid #cfc5ae;padding-top:25px}.table-wrap{overflow:auto;background:#fffaf0;border:1px solid #dfd4bd;border-radius:12px;margin:24px 0}.guide-page table{border-collapse:collapse;width:100%;font-size:14px}.guide-page th,.guide-page td{padding:12px;text-align:left;border-bottom:1px solid #e5dccb}.guide-page th{background:#193c60;color:#fff1cf}.guide-page tr:last-child td{border-bottom:0}
+@media(prefers-reduced-motion:reduce){.move-fx{animation:none;opacity:.7}}
+
+.guide-link{position:absolute;right:120px;top:0;text-decoration:none;color:#fff1cf;background:#193c60bb;border:1px solid #dfc38c66;border-radius:20px;padding:8px 12px;font-size:11px}
+
+#settings-dialog{width:min(700px,calc(100vw - 24px));max-height:90dvh;overflow:auto;padding:24px;background:#f6f0e3;color:#21354a;border:1px solid #d6b574;border-radius:20px}#settings-dialog::backdrop{background:#071528aa;backdrop-filter:blur(5px)}.settings-tabs{display:flex;gap:8px;margin:16px 0}.settings-tabs button,#music-panel button,.settings-battles button{padding:10px 15px;border:1px solid #b7a47e;border-radius:12px;background:#fffaf0;color:#21354a;cursor:pointer}.settings-tabs [aria-selected=true]{background:#193c60;color:#ffe4af}#music-panel label{display:block;margin-top:18px}#guide-panel iframe{width:100%;height:50dvh;border:0;border-radius:10px}.settings-battles{display:flex;flex-wrap:wrap;gap:10px;border-top:1px solid #d6c8ac;margin-top:20px;padding-top:16px}.settings-battles small{flex-basis:100%;line-height:1.5}#settings-dialog [hidden]{display:none}
+
+.embedded-guide nav{display:none}.embedded-guide main{margin:0;padding:18px}.embedded-guide h1{font-size:23px}.embedded-guide h2{font-size:19px}.embedded-guide{font-size:14px}.settings-tabs{flex-wrap:wrap}#interface-panel label{display:flex;align-items:center;gap:10px;padding:14px 0 3px;font-weight:600}#interface-panel small{display:block;color:#58697b;margin-left:24px}#reset-interface{margin-top:22px;background:none;border:0;text-decoration:underline;cursor:pointer;color:#254d79}.hide-log .history{display:none}.hide-tooltips .detail-panel{display:none!important}.reduce-motion *,.reduce-motion *::before,.reduce-motion *::after{animation:none!important;transition:none!important}.reduce-motion .move-fx{display:none}
+
+/* The embedded reference is a solid reading surface, not an arena overlay. */
+body.embedded-guide{background:#f4efe4!important;color:#182b3f!important;opacity:1!important}
+.embedded-guide main,.embedded-guide p,.embedded-guide strong,.embedded-guide h1,.embedded-guide h2,.embedded-guide h3,.embedded-guide td{color:#182b3f!important;opacity:1!important;text-shadow:none!important}
+.embedded-guide .table-wrap{background:#fffaf0!important;opacity:1!important}
+.embedded-guide th{background:#193c60!important;color:#fff4d9!important;opacity:1!important}
+#guide-panel,#guide-panel iframe{background:#f4efe4!important;opacity:1!important}
+
+
+/* Larger readable controls, with compact two-column moves on short screens. */
+.fighter-hud{width:clamp(220.5px,17.1vw,288px);padding:16.2px 18px}
+.hud-top strong{font-size:clamp(19.8px,1.485vw,25.2px)}
+.hud-top .type{font-size:9.9px;padding:4.5px 6.3px}
+.side-label{font-size:9.9px}.side-label span{font-size:9px}
+.fighter-hud .health{height:9px;margin-top:13.5px}
+.fighter-hud .hp{font-size:12.6px;margin-top:6.3px}
+.effect-badge{font-size:10.8px}
+.actions-panel{width:clamp(220.5px,16.2vw,270px)}
+.section-title .eyebrow,.section-title>span{font-size:9.9px}
+.move{min-height:52.2px;font-size:16.2px;padding:12.6px 18px;white-space:normal;line-height:1.25}
+.move-warning{font-size:10.8px}.move-symbol{font-size:18.9px}
+.topbar .quiet{font-size:15px;padding:10px 16px}
+.reserve{font-size:16px}.reserve small{font-size:13px}
+.turn-badge{font-size:12px;padding:10px 15px}
+.history{right:340px}.history ol{font-size:13px}
+@media(min-width:701px) and (min-height:851px){
+  .enemy-team{top:320px}
+  .actions-panel{top:max(52%,430px)}
+}
+@media(min-width:701px) and (max-height:850px){
+  .fighter-hud{top:68px;width:216px;padding:11.7px 14.4px}
+  .hud-top strong{font-size:19.8px}
+  .fighter-hud .health{margin-top:9px}
+  .enemy-team{top:12px;left:45%;right:auto}
+  .enemy-team .eyebrow{display:none}
+  .actions-panel{top:auto;bottom:35px;width:284.4px;transform:none}
+  .moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .move{min-height:45px;font-size:13.5px;padding:9px 10.8px}
+  .move-symbol{width:12.6px;font-size:15.3px;margin-right:3.6px}
+  .turn-badge{left:26px;right:auto;bottom:8px;font-size:10px;padding:6px 10px}
+  .history{right:370px;left:260px;bottom:15px}
+}
+@media(max-width:700px){
+  .fighter-hud{top:95px;width:39.6%;padding:10.8px}
+  .hud-top{gap:6px;flex-wrap:wrap}.hud-top strong{font-size:18px}
+  .hud-top .type{font-size:8.1px;padding:2.7px 4.5px}
+  .side-label{font-size:8.1px}.side-label span{font-size:7.2px}
+  .fighter-hud .hp{font-size:10.8px}.fighter-hud .health{height:8.1px;margin-top:9px}
+  .effect-badge{font-size:9px}
+  .enemy-team{top:295px}
+  .actions-panel{width:162px;top:auto;bottom:58px}
+  .move{min-height:44.1px;font-size:12.6px;padding:9.9px 12.6px}
+  .move-warning{font-size:9px}.move-symbol{font-size:16.2px}
+  .section-title .eyebrow,.section-title>span{font-size:8.1px}
+  .team-panel{max-width:calc(100% - 220px)}
+  .turn-badge{left:auto;right:16px;bottom:14px;font-size:10px;padding:8px 10px}
+  .history{left:16px;right:210px;bottom:14px}.history ol{font-size:10px}
+  .topbar .quiet{font-size:12px;padding:8px 12px}
+  .fighter.left:has(.sprite[alt="Vesperfang"]){--body-scale:.8;left:35%;bottom:34%}
+  .fighter.right{left:min(81%,calc(100% - 16px - var(--fighter-size) * var(--body-scale) * var(--body-ratio) / 2));bottom:41%}
+}
+
+/* The reading and keyboard order match the humanoid / creature rows. */
+#team-dialog{width:calc(100% - 32px);max-width:1040px}
+.team-options{display:block}
+.team-group+.team-group{margin-top:20px}
+.team-group h3{margin:0 0 10px;font:600 19px Cinzel,serif}
+.team-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.team-choice{padding:16px 10px;gap:8px;text-align:center}
+.team-choice.selected{padding:15px 9px}
+.team-choice .sprite{width:100%;height:123.5px;object-fit:contain;image-rendering:auto}
+.team-choice strong{font-size:16px}.team-choice small{font-size:12px;line-height:1.35}
+.team-choice:focus-visible{outline:3px solid #254d79;outline-offset:3px}
+.pick-number{font-size:15px}
+#team-dialog .start-battle{min-height:50px;font-size:17px}
+@media(max-width:700px){
+  #team-dialog{padding:22px 16px}
+  .team-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .team-choice .sprite{height:109.25px}
+}
+@media(max-height:540px) and (min-width:701px){
+  .team-choice .sprite{height:90.25px}
+  .team-choice{padding:13px 8px}.team-choice.selected{padding:12px 7px}
+  .team-choice strong{font-size:14px}.team-choice small{font-size:11px}
+}
+
+@media(max-height:540px) and (min-width:701px){
+  .fighter.right{left:65%}
+  .fighter.left:has(.sprite[alt="Vesperfang"]){left:41%}
+}
+
+
+/* Both battle rosters use the player's original panel dimensions plus 10%. */
+.team-panel,.enemy-team{width:229.9px;height:135.3px;padding:14.3px}
+.team-panel .eyebrow,.enemy-team .eyebrow{font-size:8.8px;line-height:1.2;margin-bottom:9.9px;letter-spacing:1.32px}
+.team-panel .roster,.enemy-team .roster{gap:8.8px;flex-wrap:nowrap}
+.team-panel .portrait,.enemy-portrait{width:60.5px;height:84.15px;flex-shrink:0;padding:4.4px 3.3px 7.7px;font-size:15.4px;text-align:center}
+.team-panel .portrait.active,.enemy-portrait.active{border-width:2px;padding:3.4px 2.3px 6.7px}
+.team-panel .portrait .sprite,.enemy-portrait .sprite{height:49.5px}
+.enemy-portrait .sprite{transform:scaleX(-1)}
+.team-panel .portrait small,.enemy-portrait small{font-size:8.8px}
+.team-panel .portrait .health,.enemy-portrait .health{height:3.3px;margin:6.6px 3.3px 0}
+@media(max-width:700px), (max-height:540px) and (min-width:701px){
+  .team-panel,.enemy-team{width:175px;max-width:none;height:120px;padding:11px}
+  .team-panel .roster,.enemy-team .roster{gap:4.4px}
+  .team-panel .portrait,.enemy-portrait{width:47.3px;height:75px}
+  .team-panel .portrait .sprite,.enemy-portrait .sprite{height:39.6px}
+  .team-panel .portrait small,.enemy-portrait small{font-size:7.7px}
+}
+@media(max-width:700px){.enemy-team{top:235px}}
+@media(max-height:540px) and (min-width:701px){
+  .enemy-team{left:254px;top:8px}
+  .enemy-team .eyebrow{display:block}
+  .fighter.right{bottom:37%}
+}
