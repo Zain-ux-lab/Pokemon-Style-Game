@@ -193,12 +193,18 @@ async function sendAction(kind,index) {
   }
 }
 function renderChoices() {
-  $('team-options').innerHTML=catalog.map(c=>{
+  const humanoids=['mage','bramblebelly','veyne','coil','bastion'];
+  const groups=[
+    {id:'humanoids',name:'Humanoids',characters:catalog.filter(c=>humanoids.includes(c.id))},
+    {id:'creatures',name:'Creatures',characters:catalog.filter(c=>!humanoids.includes(c.id))},
+  ];
+  const choice=c=>{
     const rank=selection.indexOf(c.id);
     const featured=c.moves.find(m=>m.effect)||c.moves[0];
     const strength=featured.effect==='guard'?`${featured.power} power · ${featured.effect_amount}% guard`:featured.effect==='heal'?`heal ${featured.effect_amount} HP`:`${featured.power} power`;
     return `<button class="team-choice ${rank>=0?'selected':''}" data-id="${c.id}" aria-pressed="${rank>=0}" ${busy || (selection.length===3 && rank<0)?'disabled':''}><span class="pick-number">${rank>=0?rank+1:'+'}</span>${artwork(c)}<strong>${c.name}</strong><small>${typeSymbol(c.type)} · ${c.maxHp} HP</small><small>${featured.name} · ${strength}</small></button>`;
-  }).join('');
+  };
+  $('team-options').innerHTML=groups.map(group=>`<section class="team-group" aria-labelledby="team-${group.id}"><h3 id="team-${group.id}">${group.name}</h3><div class="team-row">${group.characters.map(choice).join('')}</div></section>`).join('');
   $('team-options').querySelectorAll('button').forEach(button=>button.onclick=()=>{
     const id=button.dataset.id; selection=selection.includes(id)?selection.filter(c=>c!==id):[...selection,id];
     renderChoices(); $('team-options').querySelector(`[data-id="${id}"]`).focus();

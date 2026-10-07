@@ -33,7 +33,7 @@
 .fighter:has(.sprite[alt="Veyne"]){--body-ratio:.92;--sprite-lift:-.8%}
 .fighter:has(.sprite[alt="Coil"]){--sprite-lift:-1.2%}
 .fighter:has(.sprite[alt="Bastion"]){--body-ratio:.95}
-.fighter:has(.sprite[alt="Vesperfang"]){--body-scale:.7;--body-ratio:1.5;--shadow-width:75%}
+.fighter:has(.sprite[alt="Vesperfang"]){--body-scale:.9;--body-ratio:1.5;--shadow-width:75%}
 .fighter:has(.sprite[alt="Hushwing"]){--body-scale:.7;--body-ratio:1.5;--sprite-lift:9%;--shadow-width:75%;--shadow-opacity:.3}
 .fighter:has(.sprite[alt="Riftclaw"]){--body-scale:.7;--body-ratio:1.5;--sprite-lift:-5%;--shadow-width:80%}
 .fighter:has(.sprite[alt="Glowmire"]) .sprite,.fighter:has(.sprite[alt="Hushwing"]) .sprite{animation:idle 3s ease-in-out infinite}
@@ -68,3 +68,86 @@ body.embedded-guide{background:#f4efe4!important;color:#182b3f!important;opacity
 .embedded-guide .table-wrap{background:#fffaf0!important;opacity:1!important}
 .embedded-guide th{background:#193c60!important;color:#fff4d9!important;opacity:1!important}
 #guide-panel,#guide-panel iframe{background:#f4efe4!important;opacity:1!important}
+
+
+/* Larger readable controls, with compact two-column moves on short screens. */
+.fighter-hud{width:clamp(245px,19vw,320px);padding:18px 20px}
+.hud-top strong{font-size:clamp(22px,1.65vw,28px)}
+.hud-top .type{font-size:11px;padding:5px 7px}
+.side-label{font-size:11px}.side-label span{font-size:10px}
+.fighter-hud .health{height:10px;margin-top:15px}
+.fighter-hud .hp{font-size:14px;margin-top:7px}
+.effect-badge{font-size:12px}
+.actions-panel{width:clamp(245px,18vw,300px)}
+.section-title .eyebrow,.section-title>span{font-size:11px}
+.move{min-height:58px;font-size:18px;padding:14px 20px;white-space:normal;line-height:1.25}
+.move-warning{font-size:12px}.move-symbol{font-size:21px}
+.topbar .quiet{font-size:15px;padding:10px 16px}
+.reserve{font-size:16px}.reserve small{font-size:13px}
+.turn-badge{font-size:12px;padding:10px 15px}
+.history{right:340px}.history ol{font-size:13px}
+@media(min-width:701px) and (min-height:851px){
+  .enemy-team{top:320px}
+  .actions-panel{top:max(52%,430px)}
+}
+@media(min-width:701px) and (max-height:850px){
+  .fighter-hud{top:68px;width:240px;padding:13px 16px}
+  .hud-top strong{font-size:22px}
+  .fighter-hud .health{margin-top:10px}
+  .enemy-team{top:12px;left:45%;right:auto}
+  .enemy-team .eyebrow{display:none}
+  .actions-panel{top:auto;bottom:35px;width:316px;transform:none}
+  .moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .move{min-height:50px;font-size:15px;padding:10px 12px}
+  .move-symbol{width:14px;font-size:17px;margin-right:4px}
+  .turn-badge{left:26px;right:auto;bottom:8px;font-size:10px;padding:6px 10px}
+  .history{right:370px;left:260px;bottom:15px}
+}
+@media(max-width:700px){
+  .fighter-hud{top:95px;width:44%;padding:12px}
+  .hud-top{gap:6px;flex-wrap:wrap}.hud-top strong{font-size:20px}
+  .hud-top .type{font-size:9px;padding:3px 5px}
+  .side-label{font-size:9px}.side-label span{font-size:8px}
+  .fighter-hud .hp{font-size:12px}.fighter-hud .health{height:9px;margin-top:10px}
+  .effect-badge{font-size:10px}
+  .enemy-team{top:295px}
+  .actions-panel{width:180px;top:auto;bottom:58px}
+  .move{min-height:49px;font-size:14px;padding:11px 14px}
+  .move-warning{font-size:10px}.move-symbol{font-size:18px}
+  .section-title .eyebrow,.section-title>span{font-size:9px}
+  .team-panel{max-width:calc(100% - 220px)}
+  .turn-badge{left:auto;right:16px;bottom:14px;font-size:10px;padding:8px 10px}
+  .history{left:16px;right:210px;bottom:14px}.history ol{font-size:10px}
+  .topbar .quiet{font-size:12px;padding:8px 12px}
+  .fighter.left:has(.sprite[alt="Vesperfang"]){--body-scale:.8;left:35%;bottom:34%}
+  .fighter.right{left:78%;bottom:38%}
+}
+
+/* The reading and keyboard order match the humanoid / creature rows. */
+#team-dialog{width:calc(100% - 32px);max-width:1040px}
+.team-options{display:block}
+.team-group+.team-group{margin-top:20px}
+.team-group h3{margin:0 0 10px;font:600 19px Cinzel,serif}
+.team-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.team-choice{padding:16px 10px;gap:8px;text-align:center}
+.team-choice.selected{padding:15px 9px}
+.team-choice .sprite{width:100%;height:130px;object-fit:contain;image-rendering:auto}
+.team-choice strong{font-size:16px}.team-choice small{font-size:12px;line-height:1.35}
+.team-choice:focus-visible{outline:3px solid #254d79;outline-offset:3px}
+.pick-number{font-size:15px}
+#team-dialog .start-battle{min-height:50px;font-size:17px}
+@media(max-width:700px){
+  #team-dialog{padding:22px 16px}
+  .team-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .team-choice .sprite{height:115px}
+}
+@media(max-height:540px) and (min-width:701px){
+  .team-choice .sprite{height:95px}
+  .team-choice{padding:13px 8px}.team-choice.selected{padding:12px 7px}
+  .team-choice strong{font-size:14px}.team-choice small{font-size:11px}
+}
+
+@media(max-height:540px) and (min-width:701px){
+  .fighter.right{left:62%}
+  .fighter.left:has(.sprite[alt="Vesperfang"]){left:41%}
+}
