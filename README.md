@@ -107,3 +107,8 @@ random but only 47.5% against damage-only; AI strength remains a work in progres
 ```bash
 python -m backend.bot.evaluation --fixtures 20 --seed 20261007 --output /tmp/bot-results.json
 ```
+
+The [matchup-scoring experiment](docs/evaluation/MATCHUP_SCORING.md) adds earlier
+beneficial switching and reports before/after results. Damage-only wins reached
+50% on both original and fresh teams, with a small regression against random;
+these are preliminary results, not evidence of human-level play.
