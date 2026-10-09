@@ -43,7 +43,7 @@ test('bot waits after the player animation and controls stay locked through its 
   assert.equal(vm.runInContext('allowed("move",0)',context),false,'Bot animation must finish before another action');
   tick();
   await action;
-  assert.deepEqual(waits,[460,460,650,460,460]);
+  assert.deepEqual(waits,[460,1800,700,460,1800]);
   assert.equal(vm.runInContext('allowed("move",0)',context),true);
 });
 

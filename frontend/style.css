@@ -79,10 +79,10 @@ img.sprite{display:block;object-fit:contain;image-rendering:auto;object-position
 .loadout legend{font-weight:700}.loadout small{display:block;color:var(--muted);margin-bottom:8px}
 .loadout>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .loadout label{font-size:12px;display:flex;align-items:center;gap:6px}
-.hp-change{position:absolute;top:0;left:50%;z-index:8;font-weight:700;font-size:28px;color:#fff;background:#963f37;border-radius:20px;padding:3px 10px;animation:hp-float .46s ease-out both;pointer-events:none;transform:scaleX(1)}
+.hp-change{position:absolute;top:0;left:50%;z-index:8;font-weight:700;font-size:28px;color:#fff;background:#963f37;border-radius:20px;padding:3px 10px;animation:hp-float var(--hp-display-time,1800ms) ease-out both;pointer-events:none;transform:scaleX(1)}
 .fighter.right .hp-change{scale:-1 1}.hp-change.recovery{background:#367858}
 .move-announcement{position:absolute;top:31%;left:50%;transform:translateX(-50%);z-index:8;padding:8px 16px;border-radius:24px;background:#f7f2e0ed;color:var(--ink);font-weight:700;pointer-events:none;white-space:nowrap}
-@keyframes hp-float{from{opacity:1;translate:0 0}to{opacity:0;translate:0 -35px}}
+@keyframes hp-float{0%{opacity:1;translate:0 0}20%{opacity:1;translate:0 -15px}80%{opacity:1;translate:0 -15px}100%{opacity:0;translate:0 -25px}}
 @media(prefers-reduced-motion:reduce){.hp-change{animation:none}}
 
 /* Effect labels stay beside HP; explanations open above the battle controls. */
