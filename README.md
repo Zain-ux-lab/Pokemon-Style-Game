@@ -4,6 +4,36 @@ A duo computer-science portfolio project: a browser-based, turn-based game
 against a tactical bot. Pick three of ten characters, customise their moves,
 and use type matchups and signature abilities to win.
 
+## Project at a glance
+
+**Stack:** Python / FastAPI backend; JavaScript, HTML and CSS frontend.
+**Mode:** single player against a deterministic tactical bot.
+**Demo:** local demo available; public hosting is pending.
+
+![Colosseum arena artwork](frontend/assets/arenas/01-colosseum.png)
+
+*One of eight arena backgrounds; artwork preview, not a gameplay screenshot.*
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser[Browser interface] -->|Action and revision| API[FastAPI session API]
+    API --> Engine[Combat engine]
+    API --> Bot[Tactical search bot]
+    Bot -->|Copy and simulate| Engine
+    Engine -->|Battle state and frames| API
+    API -->|Ordered action frames| Browser
+```
+
+The server owns battle outcomes. The browser presents returned action frames,
+including move effects and HP changes. The bot uses the same engine to evaluate
+legal actions without mutating the live match. Matches are stored in memory;
+a restart clears them.
+
+See the [CV and interview pack](docs/CV_AND_PORTFOLIO.md) for a concise project
+entry, engineering evidence, a demo walkthrough and interview preparation.
+
 ## Team
 
 - **Zain** — gameplay design, combat engine, character balance, bot and API.
@@ -27,8 +57,8 @@ homepage sound controls are included; further interface polish remains in progre
   Strong attacks deal 125%, resisted attacks 80%, same-type attacks 100%.
 - Deterministic statuses, healing, lifesteal, guard, delayed damage and counters.
 - Switching costs a turn and clears effects; knockout replacements are free.
-- Tactical bot searches its action and an opponent reply, then evaluates HP and
-  pending effects. It uses the same engine as the API.
+- Tactical bot searches its action and an opponent reply, then evaluates surviving characters, HP,
+  pending effects and active damage matchups. It uses the same engine as the API.
 - Ten original character PNGs and eight randomly selected arenas. The arena
   persists through refresh and does not repeat on consecutive session resets.
 - Move details show base damage. Attack announcements and floating HP changes
