@@ -71,7 +71,7 @@ function render() {
     arena.setAttribute('aria-label',`${state.arena.name} battlefield`);
     $('arena-name').textContent=state.arena.name.toUpperCase();
     $('battle-arena-caption').textContent=state.arena.name;
-    document.title=`BattleLab · ${state.arena.name}`;
+    document.title=`Clashbound · ${state.arena.name}`;
   }
   for (let p=0; p<2; p++) {
     const c = current(p);

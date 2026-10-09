@@ -1,14 +1,14 @@
-# BattleLab — CV and interview pack
+# Clashbound — CV and interview pack
 
 ## CV entry — ready to copy
 
-**BattleLab | Turn-based browser game | Python, FastAPI, JavaScript, HTML/CSS, GitHub**
+**Clashbound | Turn-based browser game | Python, FastAPI, JavaScript, HTML/CSS, GitHub**
 
 - Co-developed a single-player battle game with a teammate, featuring ten characters, configurable four-move builds, type matchups and status effects.
 - Focused on gameplay and backend integration: a shared combat engine for API resolution and deterministic tactical bot simulation, with validated actions and isolated battle sessions.
 - Evaluated bot decisions using seeded teams and paired starting positions; added matchup-aware scoring and regression coverage for early beneficial switching.
 
-Repository: https://github.com/Zain-ux-lab/Pokemon-Style-Game
+Repository: https://github.com/Zain-ux-lab/Clashbound
 
 Use the repository link now. Add a verified public demo link after deployment;
 do not describe the project as deployed until that link works. These bullets
@@ -17,7 +17,7 @@ component independently. Adjust any wording that exceeds what you can explain.
 
 ## Short project introduction
 
-BattleLab is a two-person project I built to explore turn-based combat and game
+Clashbound is a two-person project I built to explore turn-based combat and game
 AI. Players select three characters and customise their moves before facing a
 bot. I focused on gameplay and backend integration, while my teammate focused
 on the interface and presentation. The bot simulates legal actions using the
@@ -95,7 +95,7 @@ teammate review it, and merge into the deployed branch. Render can then deploy
 the updated version automatically when connected to that Git branch, or through
 a manual deploy. Local edits alone do not update the public game.
 
-See https://render.com/docs/deploys for current deployment behaviour. BattleLab
+See https://render.com/docs/deploys for current deployment behaviour. Clashbound
 matches are stored in server memory: restarting or redeploying clears active
 matches. Use one worker with the current storage design.
 

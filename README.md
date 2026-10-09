@@ -1,4 +1,4 @@
-# BattleLab
+# Clashbound
 
 A duo computer-science portfolio project: a browser-based, turn-based game
 against a tactical bot. Pick three of ten characters, customise their moves,

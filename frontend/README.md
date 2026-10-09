@@ -1,4 +1,4 @@
-# BattleLab homepage and bot battles
+# Clashbound homepage and bot battles
 
 Start the Python app from the repository root and open http://127.0.0.1:8000/:
 

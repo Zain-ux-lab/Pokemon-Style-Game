@@ -5,7 +5,7 @@
   const status = document.getElementById('audio-status');
   const preferences = {music:25, effects:40, enabled:false};
   try {
-    const saved = JSON.parse(localStorage.getItem('battlelab-audio') || '{}');
+    const saved = JSON.parse(localStorage.getItem('clashbound-audio') || '{}');
     for (const kind of ['music','effects']) {
       if (Number.isFinite(saved[kind])) preferences[kind] = Math.min(100, Math.max(0, saved[kind]));
     }
@@ -13,7 +13,7 @@
   } catch { /* Sound remains usable when browser storage is unavailable. */ }
   let enabled = false, context, fadeFrame, loading = false;
   const save = () => {
-    try { localStorage.setItem('battlelab-audio', JSON.stringify(preferences)); } catch {}
+    try { localStorage.setItem('clashbound-audio', JSON.stringify(preferences)); } catch {}
   };
   const render = () => {
     toggle.setAttribute('aria-pressed', String(enabled));

@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.api.routes import router
 
-app = FastAPI(title='BattleLab')
+app = FastAPI(title='Clashbound')
 app.include_router(router)
 
 

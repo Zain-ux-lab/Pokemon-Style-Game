@@ -10,7 +10,7 @@ We will consider reports affecting the current development version.
 Please report security vulnerabilities privately. Do not report them in a
 public issue or pull request.
 
-Use [GitHub's private vulnerability reporting](https://github.com/Zain-ux-lab/Pokemon-Style-Game/security/advisories/new)
+Use [GitHub's private vulnerability reporting](https://github.com/Zain-ux-lab/Clashbound/security/advisories/new)
 if it is enabled. Otherwise, contact [zainmalik8b@gmail.com](mailto:zainmalik8b@gmail.com)
 
 Please include:

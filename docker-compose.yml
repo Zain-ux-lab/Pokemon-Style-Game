@@ -7,13 +7,13 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://battlelab:battlelab@db:5432/battlelab
+      - DATABASE_URL=postgresql://clashbound:clashbound@db:5432/clashbound
   db:
     image: postgres:16
     environment:
-      - POSTGRES_USER=battlelab
-      - POSTGRES_PASSWORD=battlelab
-      - POSTGRES_DB=battlelab
+      - POSTGRES_USER=clashbound
+      - POSTGRES_PASSWORD=clashbound
+      - POSTGRES_DB=clashbound
     ports:
       - "5432:5432"
     volumes:

@@ -10,7 +10,7 @@ The skyship background (`skyship/skyship.png`), attack-ready Bastion
 generation for this project's selected homepage concept. Vesperfang's head
 and front claws face down toward Bastion; the layered scene keeps its face
 clear of the sword and shield. The gold B emblem is an original SVG drawn for
-BattleLab. No artwork extracted from another game or reference website is
+Clashbound. No artwork extracted from another game or reference website is
 bundled. The references guided composition and visual direction.
 
 The ten transparent character illustrations and eight arena backgrounds were

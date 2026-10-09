@@ -1,4 +1,4 @@
-# BattleLab · Stats & Type Guide
+# Clashbound · Stats & Type Guide
 
 **A quick reference for choosing your team and understanding damage.**
 Current rules · 6 October 2026 · Numbers are provisional playtest values.
