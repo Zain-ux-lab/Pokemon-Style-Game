@@ -70,52 +70,8 @@
   byId('arena-prev')?.addEventListener('click', () => changeArena(-1));
   byId('arena-next')?.addEventListener('click', () => changeArena(1));
 
-  const stage = byId('demo-stage');
-  let timers = [];
-  function stopDemo() { timers.forEach(clearTimeout); timers = []; }
-  function schedule(callback, ms) { timers.push(setTimeout(callback, ms)); }
-  function resetDemo() {
-    stopDemo(); stage.className = 'demo-stage';
-    byId('demo-hp-mage').style.width = '100%';
-    byId('demo-hp-coil').style.width = '100%';
-    byId('demo-caption').textContent = '';
-    byId('demo-play').hidden = false; byId('demo-replay').hidden = true;
-  }
-  function playDemo() {
-    resetDemo();
-    byId('demo-play').hidden = true;
-    byId('demo-caption').textContent = 'Your turn. Mage is ready.';
-    schedule(() => {
-      stage.classList.add('is-attacking');
-      byId('demo-caption').textContent = 'Mage uses Arcane Bolt.';
-    }, 700);
-    schedule(() => {
-      stage.classList.remove('is-attacking'); stage.classList.add('is-hit');
-      byId('demo-hp-coil').style.width = '74%';
-      byId('demo-caption').textContent = '26 damage. The bot takes its turn.';
-    }, 1550);
-    schedule(() => stage.classList.remove('is-hit'), 2050);
-    schedule(() => {
-      stage.classList.add('is-countering');
-      byId('demo-caption').textContent = 'Coil replies with Spark Bolt.';
-    }, 2800);
-    schedule(() => {
-      stage.classList.remove('is-countering'); stage.classList.add('is-counter-hit');
-      byId('demo-hp-mage').style.width = '75%';
-      byId('demo-caption').textContent = '25 damage. Your turn again.';
-    }, 3650);
-    schedule(() => stage.classList.remove('is-counter-hit'), 4150);
-    schedule(() => {
-      byId('demo-caption').textContent = 'Your turn. Make your next move count.';
-      byId('demo-replay').hidden = false;
-    }, 5200);
-  }
-  byId('demo-play')?.addEventListener('click', playDemo);
-  byId('demo-replay')?.addEventListener('click', playDemo);
+  const gameplayVideo = byId('gameplay-video');
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && stage) {
-      resetDemo();
-    }
+    if (document.hidden) gameplayVideo?.pause();
   });
-  window.addEventListener('pagehide', stopDemo);
 })();

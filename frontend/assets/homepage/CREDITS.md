@@ -1,6 +1,6 @@
 # Homepage asset credits
 
-Updated 6 October 2026.
+Updated 9 October 2026.
 
 ## Artwork and identity
 
@@ -9,7 +9,7 @@ The skyship background (`skyship/skyship.png`), attack-ready Bastion
 (`skyship/vesperfang-sunlit-approach.png`) were created with built-in image
 generation for this project's selected homepage concept. Vesperfang's head
 and front claws face down toward Bastion; the layered scene keeps its face
-clear of the sword and shield. The gold B emblem is an original SVG drawn for
+clear of the sword and shield. The gold C emblem is an original SVG drawn for
 Clashbound. No artwork extracted from another game or reference website is
 bundled. The references guided composition and visual direction.
 
@@ -17,7 +17,7 @@ The ten transparent character illustrations and eight arena backgrounds were
 created with built-in image generation for the project's Issue #20 artwork.
 Hushwing is a group of five spirit bats; Mistwater Citadel has a dry rocky
 cliff above the water. The original generated Sunstone Colosseum is used in
-the gallery and illustrative combat preview. The playable battle now uses the same ten character designs and eight arenas
+the gallery. The homepage video is recorded from actual gameplay in Windscar Mesa. The playable battle now uses the same ten character designs and eight arenas
 from its shared character and arena asset directories.
 
 Generation records: `prompts.json`, `skyship/prompts.json`, and
@@ -26,11 +26,20 @@ and the wing-frame atlas are not distributed.
 
 ## Audio
 
-`audio/embers-before-battle.m4a` is an original instrumental loop synthesized
-for this project: string-like pads, bell tones, quiet percussion and stereo
-echoes, at 75 BPM for 16 bars (about 51 seconds). No commercial recording or
-downloaded music sample is used. Click chimes are synthesized with Web Audio.
-Audio starts after the user enables sound and has separate volume controls.
+`audio/heroic-age.mp3`: **Heroic Age** by Kevin MacLeod (incompetech.com).
+Licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**.
+
+- Source: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN1100848
+- Download: https://incompetech.com/music/royalty-free/mp3-royaltyfree/Heroic%20Age.mp3
+- License: https://creativecommons.org/licenses/by/4.0/
+
+The recording is bundled unmodified. Attribution is also visible in the homepage/character-page audio settings and battle music settings. Music is enabled by default for new visitors; an explicit mute is remembered. Playback is attempted on load and retried on a click/tap/key interaction when the browser blocks autoplay. Homepage and battle pages pause music when hidden.
+
+The previous original `audio/embers-before-battle.m4a` remains an unused historical asset. Click chimes are synthesized with Web Audio.
+
+## Gameplay video
+
+`video/clashbound-gameplay.mp4` and `video/gameplay-poster.jpg` were captured from the project's actual browser game on 9 October 2026. The 20-second clip shows Mage's attack/guard, a confirmed switch to Vesperfang, bot replies and Dusk Bolt in Windscar Mesa. It has no audio track, so music can be muted independently. Capture details: `video/RECORDING.md`.
 
 ## Fonts
 

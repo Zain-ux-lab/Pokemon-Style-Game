@@ -32,16 +32,20 @@ Updated 6 October 2026. This skyship redesign is ready for team review.
   motion also pauses when the hero is off screen or the tab is hidden.
 - Cinzel is the display font and Barlow is the reading font. Both are bundled
   under the SIL Open Font License, with their copyright notices and licences.
-  The original gold B emblem matches the blue-and-gold scene. The personal-use
+  The original gold C emblem matches the blue-and-gold scene. The personal-use
   MIDELTANK demo from the local mockup is not distributed or referenced.
 - The blue **Play now** button with gold trim opens the existing battle
   screen. Navigation and buttons have hover glow and keyboard focus styles.
-- Enable sound in the navigation for the original instrumental loop and click
-  chimes. Audio settings has separate music and effects levels. Audio requires
-  a user interaction and pauses while the tab is hidden.
-- **Every turn matters** is an illustrated combat preview: Mage uses Arcane
-  Bolt, Coil replies with Spark Bolt, and both health bars respond.
-  It does not send battle actions or create a match.
+- Heroic Age by Kevin MacLeod is enabled by default, with attribution under
+  CC BY 4.0. The navigation mute control remembers your choice across the
+  homepage and battle. If autoplay is blocked, music starts after a click, tap
+  or keypress. Audio settings has separate music and effects levels; playback
+  pauses while the tab is hidden.
+- **Every turn matters** contains a 20-second recording of the actual game in
+  Windscar Mesa: Mage attacks/guards, the player confirms a switch to
+  Vesperfang, and the bot replies. Native video controls support play/pause,
+  replay and fullscreen. The clip has no audio track; background music remains
+  independently controllable. See `assets/homepage/video/RECORDING.md`.
 - The gallery shows the eight playable arenas, including Sunstone Colosseum and
   Mistwater Citadel's dry rocky cliff. A new match selects an arena; refresh keeps it.
 - The homepage adapts to portrait and landscape screens. The Characters page
@@ -92,7 +96,7 @@ Balance remains provisional. Six stats scale moves, and type advantages are
 implemented: Magic beats Physical, Physical beats Spirit, Spirit beats Magic.
 Artwork is static with CSS combat animations. No character limb rigging, energy,
 cooldowns, progression, accounts or online multiplayer are included.
-The homepage combat illustration is a scripted example, not a live match.
+The homepage video is a recording of a real match; Play now opens the live game.
 
 ## Tests
 
@@ -111,3 +115,26 @@ session isolation, and rejection of stale or invalid actions.
 
 See `assets/homepage/CREDITS.md`, `assets/characters/SOURCE.md`,
 `../docs/CHARACTER_ART.md` and `../docs/ARENA_ART.md` for artwork provenance.
+
+## Presentation update · 9 October 2026
+
+The hero title scales within its copy column, keeping the complete Clashbound
+name away from the fighters. Standalone guide paragraphs use dark slate text
+against the cream background; the embedded guide keeps its existing contrast.
+
+Heroic Age by Kevin MacLeod replaces the earlier theme on the homepage,
+character page and battle screen. New visitors have music enabled by default.
+Browser autoplay restrictions may require a first click, tap or key interaction.
+Muting is remembered across the homepage and battle screen. Attribution and the
+CC BY 4.0 license link appear in music settings and asset credits.
+
+### Consistent battle layout — 9 October 2026
+
+`battle-layout.css` owns the battlefield's positions and proportional sizing.
+The HP panels remain in the top corners, the opponent roster stays on the right,
+the player roster stays bottom left, and all four moves stay in one right column.
+Controls scale down on smaller landscape screens; the move column can scroll
+when unusually long feedback needs more space. Individual body proportions,
+foot anchors and shadows remain attached to the fighters. On portrait phones,
+a rotation prompt asks for landscape; rotating preserves the current match.
+The gameplay clip has been recorded again with this layout.
