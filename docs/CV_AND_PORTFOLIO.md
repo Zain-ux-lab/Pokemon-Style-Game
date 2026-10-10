@@ -36,7 +36,7 @@ to develop and validate the project.
 | Collaboration and independent validation | Merged PRs #24, #25 and #26, including Abi's review |
 | Readable action sequencing | Pacing fix: HP numbers last 1.8 seconds and a 0.7-second inter-frame pause |
 
-The current local verification is 80 Python tests and eight client tests. Test
+Local verification on 10 October 2026 is 80 Python tests and 14 client tests. Test
 counts are a dated snapshot, not a permanent guarantee. One existing
 Starlette/httpx deprecation warning remains. Client tests use a minimal DOM;
 they do not replace full browser testing.

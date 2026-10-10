@@ -93,7 +93,7 @@ not implemented.
 
 ```bash
 python -m pytest -q
-node --test tests/test_client.cjs
+node --test tests/test_*.cjs
 ```
 
 Python tests cover engine effects, type/stat scaling, legal actions, bot decisions,

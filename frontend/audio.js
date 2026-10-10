@@ -5,7 +5,7 @@
   const status = document.getElementById('audio-status');
   const preferences = {music:25, effects:40, enabled:true};
   try {
-    const saved = JSON.parse(localStorage.getItem('clashbound-audio') || '{}');
+    const saved = JSON.parse(localStorage.getItem('clashbound-audio') ?? localStorage.getItem('battlelab-audio') ?? '{}');
     for (const kind of ['music','effects']) {
       if (Number.isFinite(saved[kind])) preferences[kind] = Math.min(100, Math.max(0, saved[kind]));
     }

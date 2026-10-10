@@ -104,7 +104,7 @@ The client recovery test uses Node.js 18+ and its built-in test runner.
 
 ```bash
 python -m pytest -q
-node --test tests/test_client.cjs
+node --test tests/test_*.cjs
 ```
 
 `tests/test_battle_api.py` exercises team validation, disjoint bot rosters,
