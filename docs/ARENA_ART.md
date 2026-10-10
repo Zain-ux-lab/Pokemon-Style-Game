@@ -13,5 +13,5 @@ arena name. Existing near-player/far-opponent positions are preserved. The revie
 gallery's nearly equal fighter depth was not adopted because the game uses the
 user's previously approved perspective. Fine-tuning composition is future UI work.
 
-Source: https://github.com/Zain-ux-lab/Pokemon-Style-Game/issues/20
+Source: https://github.com/Zain-ux-lab/Clashbound/issues/20
 Package: https://github.com/user-attachments/files/33037553/arena-art-cel-shaded-review-v4.zip

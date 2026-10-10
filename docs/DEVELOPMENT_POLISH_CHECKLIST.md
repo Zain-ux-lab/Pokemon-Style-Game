@@ -1,4 +1,4 @@
-# BattleLab development and polish checklist
+# Clashbound development and polish checklist
 
 Reference reviewed: https://www.youtube.com/watch?v=6tef3Gs1AhU
 Reviewed 6 October 2026 using the English auto-generated transcript; visual demonstrations and tool-quality claims were not independently verified.

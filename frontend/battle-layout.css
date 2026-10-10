@@ -1,0 +1,59 @@
+/* One composition at every size; scale controls without moving their anchors. */
+.shell{
+  --battle-unit:max(.55px,min(.0625vw,.1dvh));
+  --battle-edge:1.8%;
+}
+.shell .topbar{inset:1.8% var(--battle-edge) auto;height:calc(38 * var(--battle-unit));gap:calc(10 * var(--battle-unit))}
+.shell .brand{font-size:calc(20 * var(--battle-unit))}
+.shell .topbar .quiet{font-size:calc(15 * var(--battle-unit));padding:calc(10 * var(--battle-unit)) calc(16 * var(--battle-unit))}
+.shell .demo-note{left:var(--battle-edge);top:6.3%;font-size:calc(8 * var(--battle-unit));letter-spacing:calc(1.2 * var(--battle-unit))}
+.shell .fighter-hud{top:8.3%;width:calc(288 * var(--battle-unit));padding:calc(16.2 * var(--battle-unit)) calc(18 * var(--battle-unit));border-radius:calc(11 * var(--battle-unit))}
+.shell .fighter-hud.left{left:var(--battle-edge)}
+.shell .fighter-hud.right{right:var(--battle-edge)}
+.shell .hud-top{gap:calc(12 * var(--battle-unit));flex-wrap:nowrap}
+.shell .hud-top strong{font-size:calc(25.2 * var(--battle-unit))}
+.shell .hud-top .type{font-size:calc(9.9 * var(--battle-unit));padding:calc(4.5 * var(--battle-unit)) calc(6.3 * var(--battle-unit))}
+.shell .side-label{font-size:calc(9.9 * var(--battle-unit));margin-bottom:calc(9 * var(--battle-unit));letter-spacing:calc(1.4 * var(--battle-unit))}
+.shell .side-label span{font-size:calc(9 * var(--battle-unit));letter-spacing:calc(.5 * var(--battle-unit))}
+.shell .fighter-hud .health{height:calc(9 * var(--battle-unit));margin-top:calc(13.5 * var(--battle-unit))}
+.shell .fighter-hud .hp{font-size:calc(12.6 * var(--battle-unit));margin-top:calc(6.3 * var(--battle-unit))}
+.shell .guard-state{font-size:calc(9 * var(--battle-unit));margin-top:calc(5 * var(--battle-unit))}
+.shell .effect-indicators{margin-top:calc(8 * var(--battle-unit))}
+.shell .effect-indicators summary{max-height:calc(56 * var(--battle-unit));gap:calc(4 * var(--battle-unit));padding:calc(2 * var(--battle-unit))}
+.shell .effect-badge{font-size:calc(10.8 * var(--battle-unit));gap:calc(5 * var(--battle-unit));padding:calc(3 * var(--battle-unit)) calc(6 * var(--battle-unit))}
+.shell .effect-indicators summary:after{font-size:calc(13 * var(--battle-unit))}
+.shell .team-panel,.shell .enemy-team{width:calc(229.9 * var(--battle-unit));max-width:none;height:calc(135.3 * var(--battle-unit));padding:calc(14.3 * var(--battle-unit));border-radius:calc(16 * var(--battle-unit))}
+.shell .team-panel{left:var(--battle-edge);bottom:6.5%}
+.shell .enemy-team{left:auto;right:var(--battle-edge);top:31.4%}
+.shell .team-panel .eyebrow,.shell .enemy-team .eyebrow{display:block;font-size:calc(8.8 * var(--battle-unit));line-height:1.2;margin-bottom:calc(9.9 * var(--battle-unit));letter-spacing:calc(1.32 * var(--battle-unit))}
+.shell .roster{gap:calc(8.8 * var(--battle-unit));flex-wrap:nowrap}
+.shell .team-panel .portrait,.shell .enemy-portrait{width:calc(60.5 * var(--battle-unit));height:calc(84.15 * var(--battle-unit));padding:calc(4.4 * var(--battle-unit)) calc(3.3 * var(--battle-unit)) calc(7.7 * var(--battle-unit));border-radius:calc(9 * var(--battle-unit))}
+.shell .team-panel .portrait.active,.shell .enemy-portrait.active{padding:calc(3.4 * var(--battle-unit)) calc(2.3 * var(--battle-unit)) calc(6.7 * var(--battle-unit))}
+.shell .team-panel .portrait .sprite,.shell .enemy-portrait .sprite{height:calc(49.5 * var(--battle-unit))}
+.shell .team-panel .portrait small,.shell .enemy-portrait small{font-size:calc(8.8 * var(--battle-unit))}
+.shell .team-panel .portrait .health,.shell .enemy-portrait .health{height:calc(3.3 * var(--battle-unit));margin:calc(6.6 * var(--battle-unit)) calc(3.3 * var(--battle-unit)) 0}
+.shell .actions-panel{left:auto;right:var(--battle-edge);top:52%;bottom:auto;transform:none;width:calc(270 * var(--battle-unit));max-height:43%;overflow:auto;scrollbar-width:thin}
+.shell .section-title{padding:0 calc(12 * var(--battle-unit));margin-bottom:calc(10 * var(--battle-unit))}
+.shell .section-title .eyebrow,.shell .section-title>span{font-size:calc(9.9 * var(--battle-unit));letter-spacing:calc(1 * var(--battle-unit))}
+.shell .moves{display:flex;flex-direction:column;flex-wrap:nowrap;gap:calc(9 * var(--battle-unit))}
+.shell .move{min-height:calc(52.2 * var(--battle-unit));font-size:max(11px,calc(16.2 * var(--battle-unit)));padding:calc(12.6 * var(--battle-unit)) calc(18 * var(--battle-unit));border-radius:calc(40 * var(--battle-unit))}
+.shell .move-symbol{width:calc(18 * var(--battle-unit));font-size:calc(18.9 * var(--battle-unit));margin-right:calc(8 * var(--battle-unit))}
+.shell .move-warning{font-size:calc(10.8 * var(--battle-unit));padding-left:calc(26 * var(--battle-unit));margin-top:calc(3 * var(--battle-unit))}
+.shell .turn-badge{left:auto;right:var(--battle-edge);top:auto;bottom:2.4%;font-size:calc(12 * var(--battle-unit));padding:calc(10 * var(--battle-unit)) calc(15 * var(--battle-unit));letter-spacing:calc(.7 * var(--battle-unit))}
+.shell .history{left:22%;right:22%;bottom:3.2%;text-align:center}
+.shell .history ol{font-size:calc(13 * var(--battle-unit));max-height:calc(40 * var(--battle-unit))}
+.shell .arena-caption{display:block;left:var(--battle-edge);bottom:2.4%;font-size:calc(8 * var(--battle-unit));letter-spacing:calc(2 * var(--battle-unit))}
+.shell .fighter.left:has(.sprite){--fighter-size:min(32dvh,20vw);left:35%;right:auto;bottom:25%}
+.shell .fighter.right:has(.sprite){--fighter-size:min(24dvh,15vw);left:63%;right:auto;bottom:38%}
+.shell .fighter.left:has(.sprite[alt="Vesperfang"]){--body-scale:.9}
+.shell .arena{background-position:center 25%}
+
+/* The battle keeps its landscape composition on phones. */
+.battle-orientation{display:none}
+@media(max-width:700px) and (orientation:portrait){
+  .shell,body>dialog,body>dialog::backdrop{visibility:hidden}
+  .battle-orientation{visibility:visible;display:flex;position:fixed;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:32px;text-align:center;color:#fff1cf;background:radial-gradient(ellipse at 50% 25%,#29516d,#11223b 75%)}
+  .battle-orientation img{width:42px;height:54px}
+  .battle-orientation h1{font:600 26px Cinzel,serif;margin:0}
+  .battle-orientation p{font:16px/1.6 Barlow,sans-serif;max-width:290px;margin:0}
+}

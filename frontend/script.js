@@ -21,6 +21,8 @@ function effectIndicators(c, player) {
   return `<details class="effect-indicators"><summary aria-label="${escapeText(c.name)}: ${statuses.map(s=>`${EFFECT_NAMES[s.name]??s.name}, ${s.turnsRemaining} ${s.turnsRemaining===1?'action':'actions'} remaining`).join('; ')}. Open effect explanations.">${statuses.map(s=>`<span class="effect-badge">${EFFECT_NAMES[s.name]??s.name} <b>${s.turnsRemaining}</b></span>`).join('')}</summary><div class="effect-explanations">${statuses.map(s=>`<p><strong>${EFFECT_NAMES[s.name]??s.name} · ${s.turnsRemaining} of ${owner} ${s.turnsRemaining===1?'actions remains':'actions remain'}</strong>${escapeText(s.description)}${s.name==='confuse' && Number.isInteger(s.moveIndex)?`<em>${escapeText(c.moves[s.moveIndex]?.name??'Marked move')} causes 8 recoil.</em>`:''}</p>`).join('')}${c.switchBlockedReason?`<p>${escapeText(c.switchBlockedReason)}</p>`:''}</div></details>`;
 }
 function typeSymbol(type) { return `<span class="type" title="${type}" aria-label="${type}">${TYPE_SYMBOLS[type]??'◇'}</span>`; }
+const FRAME_READ_MS = 1800;
+const BOT_PAUSE_MS = 700;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function request(path, body) {
@@ -69,7 +71,7 @@ function render() {
     arena.setAttribute('aria-label',`${state.arena.name} battlefield`);
     $('arena-name').textContent=state.arena.name.toUpperCase();
     $('battle-arena-caption').textContent=state.arena.name;
-    document.title=`BattleLab · ${state.arena.name}`;
+    document.title=`Clashbound · ${state.arena.name}`;
   }
   for (let p=0; p<2; p++) {
     const c = current(p);
@@ -162,7 +164,7 @@ async function sendAction(kind,index) {
         }
         const number=document.createElement('span');number.className=`hp-change ${change.amount>0?'recovery':''}`;
         number.textContent=`${change.amount>0?'+':''}${change.amount}`;
-        $(`fighter-${change.player}`).append(number);setTimeout(()=>number.remove(),900);
+        $(`fighter-${change.player}`).append(number);number.style.setProperty('--hp-display-time', `${FRAME_READ_MS}ms`);setTimeout(()=>number.remove(),FRAME_READ_MS);
       }
       if (frame.animation?.kind==='attack') {
         const attacker=$(`fighter-${frame.animation.actor}`), target=$(`fighter-${frame.animation.target}`);
@@ -177,9 +179,9 @@ async function sendAction(kind,index) {
         fighter.classList.add(animation);
         setTimeout(()=>fighter.classList.remove(animation),460);
       }
-      // Finish the animation, then leave a brief beat before the bot responds.
-      if (frame.animation) await delay(460);
-      if (i<data.frames.length-1) await delay(650);
+      // Keep the outcome readable, then pause before presenting the next action.
+      if (frame.animation) await delay(FRAME_READ_MS);
+      if (i<data.frames.length-1) await delay(BOT_PAUSE_MS);
     }
   } catch (error) {
     // Read the saved result after a lost response; never replay a move blindly.

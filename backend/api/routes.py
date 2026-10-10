@@ -22,7 +22,7 @@ from backend.engine.moves import Move
 from backend.engine.turn_engine import BattleState
 
 router = APIRouter(prefix='/api')
-COOKIE = 'battlelab_session'
+COOKIE = 'clashbound_session'
 SESSION_SECONDS = 1800
 MAX_SESSIONS = 256
 
